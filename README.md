@@ -1,7 +1,7 @@
 shadow-plugins-extra
 ====================
 
-This repository holds additional plug-ins for Shadow, including a basic example useful for developing new plug-ins.
+This repository holds additional plug-ins for Shadow, including a basic "hello world" example useful for developing new plug-ins.
 
 quick setup
 ===========
@@ -32,18 +32,18 @@ CMAKE_INSTALL_PREFIX = "path/to/install/root" (default is ${SHADOW_ROOT})
 troubleshooting
 ===============
 
-You can use `VERBOSE=1` for more verbose output
-
-```bash
-VERBOSE=1 CC=`which clang` CXX=`which clang++` cmake ..
-```
-
-Try rebuilding to ensure that the cmake cache is up to date
+First try rebuilding to ensure that the cmake cache is up to date
 
 ```bash
 rm -rf build
 mkdir build
 cd build
-...
+```
+
+using `VERBOSE=1` for more verbose output
+
+```bash
+VERBOSE=1 CC=`which clang` CXX=`which clang++` cmake ..
+make
 ```
 
