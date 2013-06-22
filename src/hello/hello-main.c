@@ -2,18 +2,18 @@
 
 #include "hello.h"
 
-static void _mylog(int level, const char* functionName, char* format, ...) {
+static void _mylog(ShadowLogLevel level, const char* functionName, char* format, ...) {
 	va_list variableArguments;
 	va_start(variableArguments, format);
 	vprintf(format, variableArguments);
 	va_end(variableArguments);
 }
-#define mylog(...) _mylog(0, __FUNCTION__, __VA_ARGS__)
+#define mylog(...) _mylog(SHADOW_LOG_LEVEL_INFO, __FUNCTION__, __VA_ARGS__)
 
 /* our hello code only relies on the log part of shadowlib */
 ShadowFunctionTable shadowlibReplacement = {NULL, _mylog, NULL, NULL, NULL};
 
-gint main(gint argc, gchar *argv[]) {
+int main(int argc, char *argv[]) {
 	mylog("Starting hello program");
 	Hello* helloState = hello_new(argc, argv, shadowlibReplacement);
 

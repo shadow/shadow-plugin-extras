@@ -44,6 +44,8 @@ static void helloplugin_ready() {
  *
  * whatever state is configured in this function will become the default
  * starting state for each node.
+ *
+ * the "__shadow_plugin_init__" function MUST exist in every plug-in.
  */
 void __shadow_plugin_init__(ShadowFunctionTable* shadowlibFuncs) {
 	assert(shadowlibFuncs);
@@ -59,10 +61,10 @@ void __shadow_plugin_init__(ShadowFunctionTable* shadowlibFuncs) {
 
 	/* we log through Shadow by using the log function it supplied to us */
 	if(success) {
-		shadowlib.log(G_LOG_LEVEL_MESSAGE, __FUNCTION__,
+		shadowlib.log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__,
 				"successfully registered hello plug-in state");
 	} else {
-		shadowlib.log(G_LOG_LEVEL_CRITICAL, __FUNCTION__,
+		shadowlib.log(SHADOW_LOG_LEVEL_CRITICAL, __FUNCTION__,
 				"error registering hello plug-in state");
 	}
 }
