@@ -1,3 +1,7 @@
+/*
+ * See LICENSE for licensing information
+ */
+
 #include "hello.h"
 
 /* functions that interface into shadow */
@@ -18,7 +22,7 @@ static void helloplugin_new(int argc, char* argv[]) {
 	 * we did not set it in __shadow_plugin_init__(). this is desirable, because
 	 * each node needs its own application state.
 	 */
-	helloNodeInstance = hello_new(argc, argv, shadowlib);
+	helloNodeInstance = hello_new(argc, argv, shadowlib.log);
 }
 
 /* shadow is freeing an existing instance of this plug-in that we previously

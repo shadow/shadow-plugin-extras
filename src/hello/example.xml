@@ -1,0 +1,20 @@
+<plugin id="hello" path="libshadow-plugin-hello.so" />
+<kill time="60" />
+
+<topology>
+    <cluster id="net1" bandwidthdown="13585" bandwidthup="2893" packetloss="0.005"/>
+    <cluster id="net2" bandwidthdown="8814" bandwidthup="3068" packetloss="0.04"/>
+    <link id="link0" clusters="net1 net1" latency="16" jitter="9"/>
+    <link id="link1" clusters="net1 net2" latency="22" jitter="7"/>
+    <link id="link2" clusters="net2 net2" latency="12" jitter="7"/>
+    <link id="link3" clusters="net2 net1" latency="22" jitter="7"/>
+</topology>  
+
+<hosts>
+    <node id="helloserver" cluster="net1">
+        <application plugin="hello" time="10" arguments="" />
+    </node>
+    <node id="helloclient" quantity="1">
+        <application plugin="hello" time="20" arguments="helloserver" />
+    </node>
+</hosts>
