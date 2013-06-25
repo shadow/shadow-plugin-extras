@@ -29,6 +29,12 @@ SHADOW_ROOT = "path/to/shadow/install/root" (default is "~/.shadow")
 CMAKE_BUILD_TYPE = "Debug" or "Release" (default is "Debug")
 CMAKE_INSTALL_PREFIX = "path/to/install/root" (default is ${SHADOW_ROOT})
 
+For example:
+
+```bash
+CC=`which clang` CXX=`which clang++` cmake .. -DSHADOW_ROOT=/home/rob/.shadow -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/rob/.shadow
+```
+
 troubleshooting
 ===============
 
