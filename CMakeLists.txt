@@ -95,5 +95,5 @@ add_cflags("-fno-inline -fno-strict-aliasing -U_FORTIFY_SOURCE")
 ## CFLAGS status update
 message(STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}")
 
-## recurse our plugin tree
-add_subdirectory(${CMAKE_SOURCE_DIR}/src/)
+## recurse to build each plug-in
+add_subdirectory(${CMAKE_SOURCE_DIR}/hello/)

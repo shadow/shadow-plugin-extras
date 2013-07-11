@@ -9,7 +9,7 @@ quick setup
 ```bash
 mkdir build
 cd build
-CC=`which clang` CXX=`which clang++` cmake ..
+CC=`which clang` CXX=`which clang++` cmake .. -DCMAKE_INSTALL_PREFIX=~/.shadow
 make -jN
 make install
 ```
