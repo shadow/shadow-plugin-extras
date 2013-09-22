@@ -1,5 +1,13 @@
 ## P2P torrent transfers plug-in
 
+if("${RT_LIBRARIES}" STREQUAL "")
+    find_package(RT REQUIRED)
+endif()
+if("${GLIB_LIBRARIES}" STREQUAL "")
+    find_package(GLIB REQUIRED)
+endif()
+include_directories(${RT_INCLUDES} ${GLIB_INCLUDES})
+
 set(torrent_sources
     shd-torrent-service.c
     shd-torrent.c 

@@ -1,10 +1,18 @@
 ## Browser-Simulator
 
 ## Find libtidy which is needed to parse HTML
-find_package(TIDY REQUIRED)
+if("${TIDY_LIBRARIES}" STREQUAL "")
+    find_package(RT REQUIRED)
+endif()
+if("${RT_LIBRARIES}" STREQUAL "")
+    find_package(RT REQUIRED)
+endif()
+if("${GLIB_LIBRARIES}" STREQUAL "")
+    find_package(GLIB REQUIRED)
+endif()
 
-include_directories(${CMAKE_SOURCE_DIR}/src/plugins/filetransfer)
-include_directories(AFTER ${TIDY_INCLUDES})
+include_directories(${CMAKE_SOURCE_DIR}/filetransfer)
+include_directories(AFTER ${TIDY_INCLUDES} ${RT_INCLUDES} ${GLIB_INCLUDES})
 
 set(browser_sources
     shd-browser.c 

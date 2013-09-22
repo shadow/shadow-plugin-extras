@@ -1,5 +1,10 @@
 ## example echo server/client plug-in
 
+if("${GLIB_LIBRARIES}" STREQUAL "")
+    find_package(GLIB REQUIRED)
+endif()
+include_directories(${GLIB_INCLUDES})
+
 ## executable that can run outside of shadow
 add_executable(shadow-echo shd-echo-main.c shd-echo-tcp.c shd-echo-udp.c shd-echo-pipe.c)
 target_link_libraries(shadow-echo ${GLIB_LIBRARIES})

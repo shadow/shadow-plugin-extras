@@ -1,3 +1,14 @@
+if("${RT_LIBRARIES}" STREQUAL "")
+    find_package(RT REQUIRED)
+endif()
+if("${GLIB_LIBRARIES}" STREQUAL "")
+    find_package(GLIB REQUIRED)
+endif()
+if("${EVENT2_LIBRARIES}" STREQUAL "")
+    find_package(EVENT2 REQUIRED)
+endif()
+include_directories(${RT_INCLUDES} ${GLIB_INCLUDES} ${EVENT2_INCLUDES})
+
 set(torcontrol-modules
 	shd-torcontrol-circuitbuild.c
     shd-torcontrol-logger.c
