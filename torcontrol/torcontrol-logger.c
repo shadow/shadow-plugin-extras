@@ -1,13 +1,12 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
 #include <glib.h>
 
-#include "shd-torcontrol.h"
-#include "shd-torcontrol-logger.h"
+#include "torcontrol.h"
+#include "torcontrol-logger.h"
 
 enum torcontrollogger_state {
 	TCLS_IDLE,

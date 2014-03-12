@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -18,10 +17,10 @@
 
 #include <string.h>
 
-#include "shd-torcontrol.h"
-#include "shd-torcontrol-circuitbuild.h"
-#include "shd-torcontrol-logger.h"
-#include "shd-torcontrol-pinger.h"
+#include "torcontrol.h"
+#include "torcontrol-circuitbuild.h"
+#include "torcontrol-logger.h"
+#include "torcontrol-pinger.h"
 
 TorControl* torControl;
 

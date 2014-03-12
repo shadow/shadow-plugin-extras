@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -10,7 +9,7 @@
 #include <glib.h>
 #include <shd-library.h>
 
-#include "shd-torcontrol.h"
+#include "torcontrol.h"
 
 typedef struct _TorCtlCircuitBuild TorCtlCircuitBuild;
 

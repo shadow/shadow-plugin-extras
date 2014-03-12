@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -8,7 +7,7 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 
-#include "shd-torcontrol.h"
+#include "torcontrol.h"
 
 TorControl torControlData;
 

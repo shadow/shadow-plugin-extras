@@ -1,13 +1,12 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
 #include <glib.h>
 
-#include "shd-torcontrol.h"
-#include "shd-torcontrol-pinger.h"
+#include "torcontrol.h"
+#include "torcontrol-pinger.h"
 
 enum torcontrolpinger_state {
 	TCPS_IDLE,

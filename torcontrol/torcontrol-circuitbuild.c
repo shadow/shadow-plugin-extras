@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -18,7 +17,7 @@
 
 #include <string.h>
 
-#include "shd-torcontrol-circuitbuild.h"
+#include "torcontrol-circuitbuild.h"
 
 enum TorCtlCircuitBuild_State {
 	TORCTL_CIRCBUILD_STATE_AUTHENTICATE,
