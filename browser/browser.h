@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -22,9 +21,9 @@
 #include <time.h>
 #include <shd-library.h>
 
-#include "shd-html.h"
-#include "shd-url.h"
-#include "shd-filegetter.h"
+#include "html.h"
+#include "url.h"
+#include "filegetter.h"
 
 enum browser_state {
 	SB_DOCUMENT, SB_HIBERNATE, SB_EMBEDDED_OBJECTS, SB_SUCCESS, SB_404, SB_FAILURE

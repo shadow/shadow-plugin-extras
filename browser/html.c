@@ -1,10 +1,9 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
-#include "shd-html.h"
+#include "html.h"
 
 static gchar* html_parse_img(GHashTable* attrs) {
 	return g_hash_table_lookup(attrs, "src");

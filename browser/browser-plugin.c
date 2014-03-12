@@ -1,10 +1,9 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
-#include "shd-browser.h"
+#include "browser.h"
 
 /* my global structure to hold all variable, node-specific application state */
 browser_t b;

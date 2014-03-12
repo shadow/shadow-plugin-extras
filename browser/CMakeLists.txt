@@ -15,9 +15,9 @@ include_directories(${CMAKE_SOURCE_DIR}/filetransfer)
 include_directories(AFTER ${TIDY_INCLUDES} ${RT_INCLUDES} ${GLIB_INCLUDES})
 
 set(browser_sources
-    shd-browser.c 
-    shd-html.c
-    shd-url.c
+    browser.c 
+    html.c
+    url.c
 )
 
 ## service library to allow browser to be used by any plugin
@@ -26,13 +26,13 @@ add_dependencies(shadow-service-browser shadow-util)
 target_link_libraries(shadow-service-browser shadow-service-filetransfer ${RT_LIBRARIES} ${GLIB_LIBRARIES} ${TIDY_LIBRARIES})
 
 ## executable that can run outside of shadow
-add_executable(shadow-browser shd-browser-main.c)
+add_executable(shadow-browser browser-main.c)
 target_link_libraries(shadow-browser shadow-service-filetransfer shadow-service-browser ${RT_LIBRARIES} ${GLIB_LIBRARIES} ${TIDY_LIBRARIES})
 install(TARGETS shadow-browser DESTINATION bin)
 
 ## build bitcode - other plugins may use the service bitcode target
 add_bitcode(shadow-service-browser-bitcode ${browser_sources})
-add_bitcode(shadow-plugin-browser-bitcode shd-browser-plugin.c)
+add_bitcode(shadow-plugin-browser-bitcode browser-plugin.c)
 
 ## create and install a shared library that can plug into shadow
 add_plugin(shadow-plugin-browser shadow-plugin-browser-bitcode shadow-service-browser-bitcode shadow-service-filetransfer-bitcode)

@@ -1,10 +1,9 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
-#include "shd-browser.h"
+#include "browser.h"
 
 static in_addr_t browser_getaddr(browser_tp b, browser_server_args_tp server) {
 	assert(b);

@@ -1,10 +1,9 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
-#include "shd-url.h"
+#include "url.h"
 
 static gchar** url_crack(const gchar* url) {
 	gchar *url_pattern = "^(http[s]?:\\/\\/|\\/\\/)([^\\/]+)((.*?)([^\\/]*))$";
