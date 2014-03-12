@@ -21,7 +21,9 @@ last known working version
 --------------------------
 
 This plug-in was last tested and known to work with 
-Shadow 1.8.0-dev commit 70add41110cc98f03b32a7eb16106c06eff34a6c
+Shadow v1.9.0
+commit 2fb316ad84801434c4b5e0536740807774c732fd
+Date:   Tue Mar 11 18:20:36 2014 -0400
 
 usage
 -----

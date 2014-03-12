@@ -6,13 +6,13 @@ endif()
 include_directories(${GLIB_INCLUDES})
 
 ## executable that can run outside of shadow
-add_executable(shadow-echo shd-echo-main.c shd-echo-tcp.c shd-echo-udp.c shd-echo-pipe.c)
+add_executable(shadow-echo echo-main.c echo-tcp.c echo-udp.c echo-pipe.c)
 target_link_libraries(shadow-echo ${GLIB_LIBRARIES})
 install(TARGETS shadow-echo DESTINATION bin)
 
 ## create and install a shared library that can plug into shadow
 add_bitcode(shadow-plugin-echo-bitcode 
-    shd-echo-plugin.c shd-echo-tcp.c shd-echo-udp.c shd-echo-pipe.c)
+    echo-plugin.c echo-tcp.c echo-udp.c echo-pipe.c)
 add_plugin(shadow-plugin-echo shadow-plugin-echo-bitcode)
 target_link_libraries(shadow-plugin-echo ${GLIB_LIBRARIES})
 install(TARGETS shadow-plugin-echo DESTINATION plugins)

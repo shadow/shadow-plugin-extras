@@ -6,7 +6,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-#include "shd-echo.h"
+#include "echo.h"
 
 EchoPipe* echopipe_new(ShadowLogFunc log) {
 	EchoPipe* epipe = g_new0(EchoPipe, 1);

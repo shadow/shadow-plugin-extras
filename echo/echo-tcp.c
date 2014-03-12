@@ -4,7 +4,7 @@
  * See LICENSE for licensing information
  */
 
-#include "shd-echo.h"
+#include "echo.h"
 
 static EchoClient* _echotcp_newClient(ShadowLogFunc log, in_addr_t serverIPAddress) {
 	g_assert(log);

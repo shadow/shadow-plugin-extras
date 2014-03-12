@@ -8,7 +8,7 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 
-#include "shd-echo.h"
+#include "echo.h"
 
 void mylog(ShadowLogLevel level, const gchar* functionName, const gchar* format, ...) {
 	va_list variableArguments;
