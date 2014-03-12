@@ -58,9 +58,11 @@ contributing
 
 Please feel free to submit pull requests to contribute new plug-ins to
 this repository. If contributing a plug-in to this repository, please
-add a README.md to the top level of your plug-in directory that includes
+add a README.md to the top level of your plug-in directory that includes:
+
  + copyright holders
  + licensing deviations from the LICENSE file, or other restrictions
  + the most recent version of Shadow with which this plug-in is known to work
  + how to use the plug-in
+
 You may wish to use `README.template.md` as a starting point.
