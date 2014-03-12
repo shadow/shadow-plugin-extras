@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -12,7 +11,7 @@
 #include <stdio.h>
 #include <netinet/in.h>
 #include <glib-2.0/glib.h>
-#include "shd-torrent-server.h"
+#include "torrent-server.h"
 
 /* version 5, one supported auth method, no auth */
 #define TC_SOCKS_INIT "\x05\x01\x00"

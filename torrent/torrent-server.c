@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -16,7 +15,7 @@
 
 #include <string.h>
 
-#include "shd-torrent.h"
+#include "torrent.h"
 
 #define TIME_TO_NS(ts) ((ts.tv_sec * 1000000000) + ts.tv_nsec)
 

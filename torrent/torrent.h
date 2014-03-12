@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -23,9 +22,9 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include "shd-torrent-server.h"
-#include "shd-torrent-client.h"
-#include "shd-torrent-authority.h"
+#include "torrent-server.h"
+#include "torrent-client.h"
+#include "torrent-authority.h"
 
 #define MAX_EVENTS 10
 

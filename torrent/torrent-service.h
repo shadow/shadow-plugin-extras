@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -11,9 +10,9 @@
 #include <stddef.h>
 #include <time.h>
 
-#include "shd-torrent-authority.h"
-#include "shd-torrent-client.h"
-#include "shd-torrent-server.h"
+#include "torrent-authority.h"
+#include "torrent-client.h"
+#include "torrent-server.h"
 
 enum torrentService_loglevel {
 	TSVC_CRITICAL, TSVC_WARNING, TSVC_NOTICE, TSVC_INFO, TSVC_DEBUG

@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -14,7 +13,7 @@
 #include <assert.h>
 #include <arpa/inet.h>
 
-#include "shd-torrent-service.h"
+#include "torrent-service.h"
 
 static void torrentService_log(TorrentService *tsvc, enum torrentService_loglevel level, const gchar* format, ...) {
 	/* if they gave NULL as a callback, dont log */

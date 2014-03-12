@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -16,7 +15,7 @@
 
 #include <string.h>
 
-#include "shd-torrent.h"
+#include "torrent.h"
 
 static void torrentAuthority_log(TorrentAuthority *ta, enum torrentAuthority_loglevel level, const gchar* format, ...) {
 	/* if they gave NULL as a callback, dont log */

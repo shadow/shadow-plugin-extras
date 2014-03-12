@@ -1,10 +1,9 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
-#include "shd-torrent.h"
+#include "torrent.h"
 
 
 void torrentPlugin_new(int argc, char* argv[]) {
