@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -18,7 +17,7 @@
 
 #include <string.h>
 
-#include "shd-ping-server.h"
+#include "ping-server.h"
 
 #define TIME_TO_NS(ts) ((ts.tv_sec * 1000000000) + ts.tv_nsec)
 

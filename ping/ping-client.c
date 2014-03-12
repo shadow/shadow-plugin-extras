@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -18,7 +17,7 @@
 
 #include <string.h>
 
-#include "shd-ping-client.h"
+#include "ping-client.h"
 
 #define PING_CLIENT_ASSERTIO(ping, retcode, allowed_errno_logic, ts_errcode) \
 	/* check result */ \

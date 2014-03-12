@@ -1,10 +1,9 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
-#include "shd-ping.h"
+#include "ping.h"
 
 
 void pingPlugin_new(int argc, char* argv[]) {

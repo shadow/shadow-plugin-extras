@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -24,8 +23,8 @@
 #include <unistd.h>
 #include <event.h>
 
-#include "shd-ping-server.h"
-#include "shd-ping-client.h"
+#include "ping-server.h"
+#include "ping-client.h"
 
 #define MAX_EVENTS 10
 #define PING_PORT 25

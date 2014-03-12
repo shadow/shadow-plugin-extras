@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -14,7 +13,7 @@
 #include <assert.h>
 #include <arpa/inet.h>
 
-#include "shd-ping-service.h"
+#include "ping-service.h"
 
 static void pingService_log(PingService *pingSvc, enum pingService_loglevel level, const gchar* format, ...) {
 	/* if they gave NULL as a callback, dont log */

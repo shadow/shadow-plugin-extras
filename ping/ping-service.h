@@ -1,6 +1,5 @@
 /*
  * The Shadow Simulator
- * Copyright (c) 2010-2011, Rob Jansen
  * See LICENSE for licensing information
  */
 
@@ -11,8 +10,8 @@
 #include <stddef.h>
 #include <time.h>
 
-#include "shd-ping-client.h"
-#include "shd-ping-server.h"
+#include "ping-client.h"
+#include "ping-server.h"
 
 enum pingService_loglevel {
 	PING_CRITICAL, PING_WARNING, PING_NOTICE, PING_INFO, PING_DEBUG
