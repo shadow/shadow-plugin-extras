@@ -36,19 +36,19 @@
 
     <!-- the plug-ins we will be using -->
 
-    <plugin id="hello" path="libshadow-plugin-hello.so" />
+    <plugin id="filex" path="libshadow-plugin-filetransfer.so" />
 
     <!-- the length of our experiment in seconds -->
 
-    <kill time="60" />
+    <kill time="600" />
 
     <!-- our nodes and the applications they run -->
 
-    <node id="helloserver" geocodehint="US">
-        <application plugin="hello" time="10" arguments="" />
+    <node id="server.node">
+        <application plugin="filex" time="10" arguments="server 8080 /bin/" />
     </node>
-    <node id="helloclient" quantity="1">
-        <application plugin="hello" time="20" arguments="helloserver" />
+    <node id="client.node" quantity="1">
+        <application plugin="filex" time="20" arguments="client single server.node 8080 none 0 10 /ls" />
     </node>
 
 </shadow>
