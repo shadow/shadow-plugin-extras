@@ -22,9 +22,9 @@ The `cmake` command above takes multiple options, specified as
 CC=`which clang` CXX=`which clang++` cmake .. -DOPT=VAL
 ```
 
-SHADOW_ROOT = "path/to/shadow/install/root" (default is "~/.shadow") 
-CMAKE_BUILD_TYPE = "Debug" or "Release" (default is "Debug") 
-CMAKE_INSTALL_PREFIX = "path/to/install/root" (default is ${SHADOW_ROOT}) 
++ SHADOW_ROOT = "path/to/shadow/install/root" (default is "~/.shadow")  
++ CMAKE_BUILD_TYPE = "Debug" or "Release" (default is "Debug")  
++ CMAKE_INSTALL_PREFIX = "path/to/install/root" (default is ${SHADOW_ROOT})  
 
 For example:
 
