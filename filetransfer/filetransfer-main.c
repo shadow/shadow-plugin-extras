@@ -7,7 +7,7 @@
 
 #include <glib.h>
 #include <shd-library.h>
-#include "shd-filetransfer.h"
+#include "filetransfer.h"
 
 FileTransfer ftmain_globalData;
 

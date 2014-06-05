@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "shd-filetransfer.h"
+#include "filetransfer.h"
 
 /* my global structure to hold all variable, node-specific application state */
 FileTransfer* ft;

@@ -3,6 +3,9 @@
  * See LICENSE for licensing information
  */
 
+#define _GNU_SOURCE
+#include <string.h>
+
 #include <glib.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -13,8 +16,6 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <assert.h>
-
-#include <string.h>
 
 #include "torrent.h"
 

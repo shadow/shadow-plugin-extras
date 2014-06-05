@@ -15,7 +15,7 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "shd-filetransfer-defs.h"
+#include "filetransfer-defs.h"
 
 /* TODO explain what these codes mean.
  * Note - they MUST be synced with fileserver_code_strings */

@@ -2,7 +2,7 @@
 
 ## Find libtidy which is needed to parse HTML
 if("${TIDY_LIBRARIES}" STREQUAL "")
-    find_package(RT REQUIRED)
+    find_package(TIDY REQUIRED)
 endif()
 if("${RT_LIBRARIES}" STREQUAL "")
     find_package(RT REQUIRED)

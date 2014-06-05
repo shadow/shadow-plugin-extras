@@ -14,7 +14,7 @@
 #include <netinet/in.h>
 #include <glib-2.0/glib.h>
 
-#include "shd-filetransfer-defs.h"
+#include "filetransfer-defs.h"
 
 /*
  * A minimal http server.

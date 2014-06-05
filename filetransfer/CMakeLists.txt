@@ -9,11 +9,11 @@ endif()
 include_directories(${RT_INCLUDES} ${GLIB_INCLUDES})
 
 set(filetransfer_sources
-    shd-filetransfer.c 
-    shd-fileserver.c 
-    shd-service-filegetter.c 
-    shd-filegetter.c
-    ../../utility/shd-cdf.c
+    filetransfer.c 
+    fileserver.c 
+    service-filegetter.c 
+    filegetter.c
+    cdf.c
 )
 
 ## service target to allow filetransfer service to be used by any plugin
@@ -22,13 +22,13 @@ add_dependencies(shadow-service-filetransfer shadow-util)
 target_link_libraries(shadow-service-filetransfer ${RT_LIBRARIES} ${GLIB_LIBRARIES})
 
 ## executable that can run outside of shadow
-add_executable(shadow-filetransfer shd-filetransfer-main.c)
+add_executable(shadow-filetransfer filetransfer-main.c)
 target_link_libraries(shadow-filetransfer shadow-service-filetransfer ${RT_LIBRARIES} ${GLIB_LIBRARIES})
 install(TARGETS shadow-filetransfer DESTINATION bin)
 
 ## build bitcode - other plugins may use the service bitcode target
 add_bitcode(shadow-service-filetransfer-bitcode ${filetransfer_sources})
-add_bitcode(shadow-plugin-filetransfer-bitcode shd-filetransfer-plugin.c)
+add_bitcode(shadow-plugin-filetransfer-bitcode filetransfer-plugin.c)
 
 ## create and install a shared library that can plug into shadow
 add_plugin(shadow-plugin-filetransfer shadow-plugin-filetransfer-bitcode shadow-service-filetransfer-bitcode)

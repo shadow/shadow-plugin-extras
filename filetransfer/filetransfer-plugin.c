@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-#include "shd-filetransfer.h"
+#include "filetransfer.h"
 
 /* create a new node using this plug-in */
 static void filetransferplugin_new(int argc, char* argv[]) {

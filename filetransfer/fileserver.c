@@ -5,6 +5,9 @@
  */
 
 
+#define _GNU_SOURCE
+#include <string.h>
+
 #include <glib.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -15,9 +18,7 @@
 #include <netinet/in.h>
 #include <errno.h>
 
-#include <string.h>
-
-#include "shd-filetransfer.h"
+#include "filetransfer.h"
 
 /* TODO better checking of syscall results like strncpy */
 

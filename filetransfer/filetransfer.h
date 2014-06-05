@@ -28,10 +28,10 @@
 
 #include <shd-library.h>
 
-#include "shd-filetransfer-defs.h"
-#include "shd-fileserver.h"
-#include "shd-filegetter.h"
-#include "shd-service-filegetter.h"
+#include "filetransfer-defs.h"
+#include "fileserver.h"
+#include "filegetter.h"
+#include "service-filegetter.h"
 
 typedef struct _FileTransfer FileTransfer;
 struct _FileTransfer {

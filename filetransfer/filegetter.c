@@ -5,12 +5,14 @@
  */
 
 
+#define _GNU_SOURCE
+#include <string.h>
+
 #include <glib.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <string.h>
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
@@ -19,7 +21,7 @@
 #include <arpa/inet.h>
 #include <assert.h>
 
-#include "shd-filetransfer.h"
+#include "filetransfer.h"
 
 /* these MUST be synced with filegetter_codes */
 static const gchar* filegetter_code_strings[] = {

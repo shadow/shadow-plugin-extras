@@ -15,7 +15,7 @@
 #include <arpa/inet.h>
 
 /* this service implements a filegetter and may be used inside or outside of shadow */
-#include "shd-service-filegetter.h"
+#include "service-filegetter.h"
 
 static void service_filegetter_log(service_filegetter_tp sfg, enum service_filegetter_loglevel level, const gchar* format, ...) {
 	/* if they gave NULL as a callback, dont log */
