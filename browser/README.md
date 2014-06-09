@@ -22,7 +22,13 @@ unknown, but definitely <= 1.8.0.
 
 ## usage
 
-To simulate browser requests to www.wikipedia.org the site has to be mirrored to the local filesystem:
+### example
+
+Simulate a small test website by running `shadow example.xml` from the `browser/` directory.
+
+### wikipedia
+
+To simulate browser requests to www.wikipedia.org the site first has to be mirrored to the local filesystem:
 
 ```bash
 mkdir some-directory
@@ -33,36 +39,9 @@ cd ../
 
 This will create directories for each hostname (namely `bits.wikimedia.org`,`en.wikipedia.org`, `upload.wikimedia.org` and `www.wikipedia.org`) and download the HTML document and the embedded resources to the respective directory.
 
-Then each hostname needs to have a node in Shadow. The host file, hosts.xml, for this example should therefore look something like this:
+This has been done and the contents are given in the `browser/wiki` directory. You can run the wikipedia example with `shadow wiki.xml`.
 
-```xml
-<!-- 
-  -- plugin paths are relative to "~/.shadow/lib/" unless abosolute paths are given
-  -->
-<plugin id="filex" path="libshadow-plugin-filetransfer.so" />
-<plugin id="browser" path="libshadow-plugin-browser.so" />
- 
-<!-- Wikipedia -->
-<node id="www.wikipedia.org" cluster="USMN" bandwidthdown="60000" bandwidthup="30000" cpufrequency="2800000">
-  <application plugin="filex" starttime="10" arguments="server 80 some-directory/www.wikipedia.org/" />
-</node>
-<node id="en.wikipedia.org" cluster="USMN" bandwidthdown="60000" bandwidthup="30000" cpufrequency="2800000">
-  <application plugin="filex" starttime="10" arguments="server 80 some-directory/en.wikipedia.org/" />
-</node>
-<node id="upload.wikimedia.org" cluster="USMN" bandwidthdown="60000" bandwidthup="30000" cpufrequency="2800000">
-  <application plugin="filex" starttime="10" arguments="server 80 some-directory/upload.wikimedia.org/" />
-</node>
-<node id="bits.wikimedia.org" cluster="USMN" bandwidthdown="60000" bandwidthup="30000" cpufrequency="2800000">
-  <application plugin="filex" starttime="10" arguments="server 80 some-directory/bits.wikimedia.org/" />
-</node>
-
-<!-- Browser -->
-<node id="client.node" quantity="1">
-  <application plugin="browser" starttime="20" arguments="www.wikipedia.org 80 none 0 6 /index.html" />
-</node>
-
-<kill time="600" />
-```
+### browser program args
 
 The arguments for the browser plugin denote the following:
 
@@ -73,10 +52,12 @@ The arguments for the browser plugin denote the following:
 5. Maximum amount of concurrent connections per host
 6. Path of the HTML document
 
-To run the example, make sure you have `./hosts.xml`, `./some-directory/`, and `~/.shadow/share/topology.xml`.
+### browser output
+
+Run an experiment like so:
 
 ```
-shadow ~/.shadow/share/topology.xml hosts.xml | grep browser_
+shadow example.xml | grep browser_
 ```
 
 The output should be like the following:
