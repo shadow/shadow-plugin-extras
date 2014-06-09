@@ -17,8 +17,7 @@ None specified.
 ## last known working version
 
 This plug-in was last tested and known to work with 
-~~Shadow x.y.z(-dev) commit <commit hash>~~
-unknown, but definitely <= 1.8.0.
+Shadow 1.9.2.
 
 ## usage
 
