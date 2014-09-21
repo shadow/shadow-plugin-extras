@@ -1,0 +1,19 @@
+<shadow>
+  <kill time="200"/>
+  <topology path="~/.shadow/share/topology.graphml.xml"/>
+  <plugin id="browser" path="~/.shadow/plugins/libshadow-plugin-browser2.so"/>
+  <plugin id="webserver" path="~/.shadow/plugins/libshadow-plugin-webserver.so"/>
+  <node id="server-1" iphint="103.23.108.107" geocodehint="TW" typehint="server" bandwidthup="102400" bandwidthdown="102400" quantity="1" cpufrequency="10000000">
+    <application plugin="webserver" starttime="1" arguments="../htmlroot"/>
+  </node>
+  <node id="server-2" iphint="74.125.228.41" geocodehint="US" typehint="server" bandwidthup="102400" bandwidthdown="102400" quantity="1" cpufrequency="10000000">
+    <application plugin="webserver" starttime="1" arguments="../htmlroot"/>
+  </node>
+  <node id="server-3" iphint="219.85.79.131" geocodehint="TW" typehint="server" bandwidthup="102400" bandwidthdown="102400" quantity="1" cpufrequency="10000000">
+    <application plugin="webserver" starttime="1" arguments="../htmlroot"/>
+  </node>
+  <node id="webclient0001" geocodehint="SA" typehint="client" quantity="1" cpufrequency="2800000">
+    <application plugin="browser" starttime="2" arguments="--socks5 none --max none --page-spec ../page-spec.txt --think-times 60000 --timeoutSecs 300 --mode-spec none"/>
+  </node>
+</shadow>
+

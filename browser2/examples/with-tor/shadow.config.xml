@@ -1,0 +1,42 @@
+<shadow>
+  <kill time="900"/>
+  <topology path="~/.shadow/share/topology.graphml.xml"/>
+  <plugin id="browser" path="~/.shadow/plugins/libshadow-plugin-browser2.so"/>
+  <plugin id="webserver" path="~/.shadow/plugins/libshadow-plugin-webserver.so"/>
+  <plugin id="scallion" path="~/.shadow/plugins/libshadow-plugin-scallion.so"/>
+  <node id="server-1" iphint="103.23.108.107" geocodehint="TW" typehint="server" bandwidthup="102400" bandwidthdown="102400" quantity="1" cpufrequency="10000000">
+    <application plugin="webserver" starttime="1" arguments="../htmlroot"/>
+  </node>
+  <node id="server-2" iphint="74.125.228.41" geocodehint="US" typehint="server" bandwidthup="102400" bandwidthdown="102400" quantity="1" cpufrequency="10000000">
+    <application plugin="webserver" starttime="1" arguments="../htmlroot"/>
+  </node>
+  <node id="server-3" iphint="219.85.79.131" geocodehint="TW" typehint="server" bandwidthup="102400" bandwidthdown="102400" quantity="1" cpufrequency="10000000">
+    <application plugin="webserver" starttime="1" arguments="../htmlroot"/>
+  </node>
+  <node id="4uthority1" iphint="84.45.76.12" geocodehint="GB" typehint="relay" bandwidthdown="449" bandwidthup="449" quantity="1" cpufrequency="3200000">
+    <application plugin="scallion" starttime="5" arguments="dirauth 86 --quiet --Address ${NODEID} --Nickname ${NODEID} --DataDirectory ./data/${NODEID} --GeoIPFile ~/.shadow/share/geoip -f ./torrc_files/authority.torrc --BandwidthRate 1073741824 --BandwidthBurst 1073741824"/>
+  </node>
+  <node id="relayguard001" iphint="212.83.154.33" geocodehint="FR" typehint="relay" bandwidthdown="18265" bandwidthup="18265" quantity="1" cpufrequency="3400000">
+    <application plugin="scallion" starttime="10" arguments="relay 60200 --quiet --Address ${NODEID} --Nickname ${NODEID} --DataDirectory ./data/${NODEID} --GeoIPFile ~/.shadow/share/geoip -f ./torrc_files/guard.torrc --BandwidthRate 15728640 --BandwidthBurst 20971520"/>
+  </node>
+  <node id="relayguard002" iphint="162.213.34.137" geocodehint="US" typehint="relay" bandwidthdown="9540" bandwidthup="9540" quantity="1" cpufrequency="3400000">
+    <application plugin="scallion" starttime="12" arguments="relay 30500 --quiet --Address ${NODEID} --Nickname ${NODEID} --DataDirectory ./data/${NODEID} --GeoIPFile ~/.shadow/share/geoip -f ./torrc_files/guard.torrc --BandwidthRate 1073741824 --BandwidthBurst 1073741824"/>
+  </node>
+  <node id="relayexit001" iphint="79.140.41.137" geocodehint="DE" typehint="relay" bandwidthdown="7659" bandwidthup="7659" quantity="1" cpufrequency="3000000">
+    <application plugin="scallion" starttime="14" arguments="exitrelay 8840 --quiet --Address ${NODEID} --Nickname ${NODEID} --DataDirectory ./data/${NODEID} --GeoIPFile ~/.shadow/share/geoip -f ./torrc_files/exit.torrc --BandwidthRate 1073741824 --BandwidthBurst 1073741824"/>
+  </node>
+  <node id="relayexit002" iphint="82.165.44.44" geocodehint="DE" typehint="relay" bandwidthdown="1955" bandwidthup="1955" quantity="1" cpufrequency="3200000">
+    <application plugin="scallion" starttime="16" arguments="exitrelay 1170 --quiet --Address ${NODEID} --Nickname ${NODEID} --DataDirectory ./data/${NODEID} --GeoIPFile ~/.shadow/share/geoip -f ./torrc_files/exit.torrc --BandwidthRate 1073741824 --BandwidthBurst 1073741824"/>
+  </node>
+  <node id="relaymiddle001" iphint="66.228.59.187" geocodehint="US" typehint="relay" bandwidthdown="5773" bandwidthup="5773" quantity="1" cpufrequency="3200000">
+    <application plugin="scallion" starttime="18" arguments="relay 8220 --quiet --Address ${NODEID} --Nickname ${NODEID} --DataDirectory ./data/${NODEID} --GeoIPFile ~/.shadow/share/geoip -f ./torrc_files/middle.torrc --BandwidthRate 8388608 --BandwidthBurst 9437184"/>
+  </node>
+  <node id="relaymiddle002" iphint="195.154.166.113" geocodehint="FR" typehint="relay" bandwidthdown="5777" bandwidthup="5630" quantity="1" cpufrequency="3200000">
+    <application plugin="scallion" starttime="20" arguments="relay 3450 --quiet --Address ${NODEID} --Nickname ${NODEID} --DataDirectory ./data/${NODEID} --GeoIPFile ~/.shadow/share/geoip -f ./torrc_files/middle.torrc --BandwidthRate 5242880 --BandwidthBurst 10485760"/>
+  </node>
+  <node id="webclient0001" geocodehint="SA" typehint="client" quantity="1" cpufrequency="2800000">
+    <application plugin="scallion" starttime="400" arguments="client 10240 --quiet --Address ${NODEID} --Nickname ${NODEID} --DataDirectory ./data/${NODEID} --GeoIPFile ~/.shadow/share/geoip -f ./torrc_files/client.torrc"/>
+    <application plugin="browser" starttime="460" arguments="--socks5 localhost:9000 --max none --page-spec ../page-spec.txt --think-times 60000 --timeoutSecs 300 --mode-spec none"/>
+  </node>
+</shadow>
+
