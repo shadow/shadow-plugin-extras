@@ -23,25 +23,25 @@ This plug-in was last tested and known to work with Shadow 1.9.2.
 
 ### example
 
-See examples directory. There are two examples: with-tor, which requires the scalion plugin, and no-tor. Both require the "webserver" plugin.
+See examples directory. There are two examples: `with-tor`, which requires the scalion plugin, and `no-tor`. Both require the `webserver` plugin.
 
 ### browser program args
 
 The arguments for the browser plugin denote the following:
 
-USAGE: --socks5 <host:port>|none --max-persist-cnx-per-srv ...|none --page-spec <path> --think-times <path>|none --timeoutSecs <path>|none --mode-spec <path>|none
+USAGE: `--socks5 <host:port>|none --max-persist-cnx-per-srv ...|none --page-spec <path> --think-times <path>|none --timeoutSecs <path>|none --mode-spec <path>|none`
 
-  * --mode-spec: a file that specifies each client's mode, vanilla or spdy (SPDY mode is not yet complete).
-    USE "none" at this time, and the browser defaults to vanilla (HTTP).
+  * `--mode-spec`: a file that specifies each client's mode, vanilla or spdy (SPDY mode is not yet complete).
+    USE `none` at this time, and the browser defaults to vanilla (HTTP).
   * page spec contains specification of multiple pages to load: each page
-    spec begins with a line "page-url: <url>", and the following lines should
-    be "objectURL | objectSize | (optional) objectMd5Sum"
+    spec begins with a line `page-url: <url>`, and the following lines should
+    be `objectURL | objectSize | (optional) objectMd5Sum`
     empty lines or lines beginning with # are ignored.
     see the examples directory for an example page spec, with a multi-resource page and a file.
-  * if --think-times is "none", then no think times between downloads; if it's
+  * if `--think-times` is `none`, then no think times between downloads; if it's
     a number N > 1, then it's considered the upperbound of a uniform range
     [1, N] millieconds; otherwise, it's assumed to be a path to a cdf file.
-  * --timeoutSecs: how long (seconds) before a page/file load is reported as failed.
+  * `--timeoutSecs`: how long (seconds) before a page/file load is reported as failed.
 
 ### browser output
 
@@ -88,4 +88,4 @@ The browser interprets each line in the script body, either an external script (
 // delayed_load: url= <url> delayms= <delay>
 ```
 
-as an instruction to schedule the download of `<url>` (`<delay>` is currently ignored). The `<url>` can be another script, which will be similarly processed, thus enabling arbitrary dependency depths.
+as an instruction to schedule the download of `<url>` (`<delay>` is currently ignored and `0` is used). The `<url>` can be another script, which will be similarly processed, thus enabling arbitrary dependency depths.
