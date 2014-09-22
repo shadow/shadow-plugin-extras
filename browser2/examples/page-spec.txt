@@ -1,0 +1,15 @@
+page-url: http://server-2/index.html
+# object url | size in bytes | md5 digest of data
+http://server-3/1.jpg | 4610 | 
+http://server-2/2.jpg | 55366 | 397a954c5c507621521f3108612441af
+http://server-2/1.js | 109 |
+http://server-2/2.js | 902 | 8498ff0a40a2b528a4a400b827ae0253
+http://server-1/4.jpg | 20815 |
+http://server-3/3.jpg | 164 |
+http://server-1/5.jpg | 10 | 
+http://server-1/6.jpg | 20 | 
+http://server-2/index.html | 308 |
+
+
+page-url: http://server-3/one-file.bin
+http://server-3/one-file.bin | 12345 | f3ff72cb71cc2d75fbd1127402fa83f5
