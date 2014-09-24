@@ -42,13 +42,13 @@ Request::Request(
     const string& path, const string& host, const uint16_t& port, const string& url,
     RequestAboutToSendCb req_about_to_send_cb,
     ResponseMetaCb rsp_meta_cb, ResponseBodyDataCb rsp_body_data_cb,
-    ResponseBodyDoneCb rsp_body_done_cb, void *cb_data
+    ResponseBodyDoneCb rsp_body_done_cb
     )
     : instNum_(nextInstNum)
     , path_(path), host_(host), port_(port), url_(url)
     , req_about_to_send_cb_(req_about_to_send_cb)
     , rsp_meta_cb_(rsp_meta_cb), rsp_body_data_cb_(rsp_body_data_cb)
-    , rsp_body_done_cb_(rsp_body_done_cb), cb_data_(cb_data)
+    , rsp_body_done_cb_(rsp_body_done_cb)
     , conn(NULL), num_retries_(0), first_byte_pos_(0), body_size_(0)
 {
     ++nextInstNum;
@@ -59,7 +59,6 @@ Request::Request(
 Request::~Request()
 {
     logself(DEBUG, "request destructor");
-    cb_data_ = NULL;
     conn = NULL;
 }
 

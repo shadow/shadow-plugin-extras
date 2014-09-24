@@ -16,6 +16,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 set(browser2_sources
     browser2.cc 
+    ../utility/connection_manager.cc 
     ../utility/connection.cc 
     ../utility/request.cc 
     ../utility/shd-html.cc

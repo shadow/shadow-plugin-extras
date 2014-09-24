@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <string.h>
+#include <netinet/in.h>
 
 #include "myassert.h"
 
@@ -31,6 +32,9 @@ void
 to_hex(const unsigned char *value,
        unsigned int len,
        char *hex);
+
+in_addr_t
+getaddr(const char *hostname);
 
 
 

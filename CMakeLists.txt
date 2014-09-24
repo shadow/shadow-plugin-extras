@@ -97,12 +97,5 @@ message(STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}")
 
 ## recurse to build each plug-in
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/echo/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/filetransfer/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/browser/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/hello/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/ping/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/torcontrol/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/torrent/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/browser2/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/webserver/)

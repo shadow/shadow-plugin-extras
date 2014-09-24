@@ -16,6 +16,8 @@
 #include <event2/event.h>
 #include <event2/buffer.h>
 
+#include <boost/function.hpp>
+
 #include "myevent.hpp"
 #include "common.hpp"
 #include "request.hpp"
@@ -26,12 +28,15 @@
 #include <map>
 #include <set>
 #include <queue>
+#include <deque>
 
 class Connection;
 
-typedef void (*ConnectionErrorCb)(Connection* cnx, void* cb_data);
-typedef void (*ConnectionEOFCb)(Connection* cnx, void* cb_data);
-typedef void (*ConnectionFirstRecvByteCb)(Connection* cnx, void* cb_data);
+typedef boost::function<void(Connection*)> ConnectionErrorCb;
+typedef boost::function<void(Connection*)> ConnectionEOFCb;
+typedef boost::function<void(Connection*)> ConnectionFirstRecvByteCb;
+
+typedef boost::function<void(Connection*, const Request*)> ConnectionRequestDoneCb;
 
 typedef void (*PushedMetaCb)(int id, const char* url, ssize_t contentlen,
                              const char **nv, Connection* cnx, void* cb_data);
@@ -111,7 +116,9 @@ public:
     }
 
     std::queue<Request*> get_active_request_queue() const;
-    std::queue<Request*> get_pending_request_queue() const;
+    std::deque<Request*> get_pending_request_queue() const;
+
+    void set_request_done_cb(ConnectionRequestDoneCb cb);
 
     /* schedule this cnx for later deletion */
     void deleteLater(ShadowCreateCallbackFunc scheduleCallback);
@@ -220,6 +227,8 @@ private:
     PushedBodyDataCb notify_pushed_body_data_;
     PushedBodyDoneCb notify_pushed_body_done_;
 
+    ConnectionRequestDoneCb notify_request_done_cb_;
+
     /* for spdy-to-server support */
     spdylay_session *spdysess_;
     /* dont free these Request's. these are only shallow pointer */
@@ -234,7 +243,7 @@ private:
      * submitted_req_queue_. when a request is written into the
      * outbuf_, it is moved to active_req_queue_.
      */
-    std::queue<Request* > submitted_req_queue_; // dont free these ptrs
+    std::deque<Request* > submitted_req_queue_; // dont free these ptrs
     std::queue<Request* > active_req_queue_; // dont free these ptrs
     struct evbuffer* inbuf_;
     struct evbuffer* outbuf_;

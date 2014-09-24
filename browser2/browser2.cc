@@ -4,6 +4,7 @@
 #include "myassert.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/bind.hpp>
 #include <fstream>
 #include <sstream>
 
@@ -78,56 +79,6 @@ static bool g_destroyed = false;
 
 namespace {
 
-void
-cnx_error_cb(Connection* conn, void *cb_data)
-{
-    browser_t *b = (browser_t*)cb_data;
-    b->connection_error_cb(conn);
-}
-
-void
-cnx_eof_cb(Connection* conn, void *cb_data)
-{
-    browser_t *b = (browser_t*)cb_data;
-    b->connection_eof_cb(conn);
-}
-
-void
-cnx_first_recv_byte_cb(Connection* conn, void *cb_data)
-{
-    browser_t *b = (browser_t*)cb_data;
-    b->connection_first_recv_byte_cb(conn);
-}
-
-static void
-req_about_to_send_cb(Request *req, void* cb_data)
-{
-    browser_t* browser = (browser_t*)cb_data;
-    browser->request_about_to_send_cb(req);
-}
-
-static void
-rsp_meta_cb(const int status, char **headers, Request* req, void* cb_data)
-{
-    browser_t* browser = (browser_t*)cb_data;
-    browser->response_meta_cb(status, headers, req);
-}
-
-static void
-rsp_body_data_cb(const uint8_t *data, const size_t& len,
-                 Request* req, void* cb_data)
-{
-    browser_t* browser = (browser_t*)cb_data;
-    browser->response_body_data_cb(data, len, req);
-}
-
-static void
-rsp_body_done_cb(Request *req, void* cb_data)
-{
-    browser_t* browser = (browser_t*)cb_data;
-    browser->response_body_done_cb(req);
-}
-
 static void
 notified(gpointer ptr)
 {
@@ -147,44 +98,6 @@ timeout_timer_fired(gpointer ptr)
     }
     ltc->b_->on_timeout_timer_fired(ltc->loadnum_);
     delete ltc;
-}
-
-static in_addr_t
-browser_getaddr(const gchar *hostname)
-{
-    if (!hostname || 0 == strlen(hostname)) {
-        return htonl(INADDR_NONE);
-    }
-    /* check if we have an address as a string */
-    struct in_addr in;
-    gint is_ip_address = inet_aton(hostname, &in);
-
-    if(is_ip_address) {
-        return in.s_addr;
-    } else {
-        in_addr_t addr = 0;
-
-        /* get the address in network order */
-        if(g_ascii_strncasecmp(hostname, "none", 4) == 0) {
-            addr = htonl(INADDR_NONE);
-        } else if(g_ascii_strncasecmp(hostname, "localhost", 9) == 0) {
-            addr = htonl(INADDR_LOOPBACK);
-        } else {
-            struct addrinfo* info;
-            logDEBUG("let's resolve hostname [%s]", hostname);
-            gint result = getaddrinfo((gchar*) hostname, NULL, NULL, &info);
-            if(result != 0) {
-                logfn(SHADOW_LOG_LEVEL_CRITICAL, __func__,
-                      "can't resolve [%s]", hostname);
-                myassert(0);
-            }
-
-            addr = ((struct sockaddr_in*)(info->ai_addr))->sin_addr.s_addr;
-            freeaddrinfo(info);
-        }
-
-        return addr;
-    }
 }
 } // namespace
 
@@ -397,7 +310,7 @@ browser_t::start(int argc, char *argv[])
 
     if (socks5_host) {
         socks5_host_ = socks5_host;
-        socks5_addr_ = browser_getaddr(socks5_host_.c_str());
+        socks5_addr_ = getaddr(socks5_host_.c_str());
     }
     socks5_port_ = socks5_port;
 
@@ -431,12 +344,15 @@ browser_t::load(const string& url)
 
     logself(DEBUG, "parsed hostname [%s], and port %u", hostname, port);
 
-    string netloc(hostname); /* "hostname:port" */
-    netloc += string(":") + lexical_cast<string>(port);
-
-    logself(DEBUG, "netloc [%s]", netloc.c_str());
-
-    myassert(!connections_.size());
+    if (!connman_) {
+        connman_ = new ConnectionManager(
+            evbase_,
+            socks5_addr_, socks5_port_,
+            boost::bind(&browser_t::response_finished_cb, this, _1, false),
+            max_persist_cnx_per_srv_,
+            g_max_retries_per_resource);
+        myassert(connman_);
+    }
 
     if (timeout_ms_ > -1) {
         scheduleCallback(
@@ -444,33 +360,18 @@ browser_t::load(const string& url)
             timeout_ms_);
     }
 
-    const in_addr_t addr = (do_spdy_) ? 0 : browser_getaddr(hostname);
-    Connection* conn = new Connection(
-            evbase_,
-            addr, port,
-            socks5_addr_,
-            socks5_port_,
-            (do_spdy_ ? browser_getaddr(hostname) : 0),
-            (do_spdy_ ? SPDY_PORT : 0),
-            cnx_error_cb, cnx_eof_cb,
-            NULL, NULL,
-            NULL,
-            this,
-            (do_spdy_)
-        );
-    conn->set_first_recv_byte_cb(cnx_first_recv_byte_cb);
-
-    connections_[netloc].push_back(conn);
-
     Request* req = new Request(
-        path, string(hostname), port, url, req_about_to_send_cb,
-        rsp_meta_cb, rsp_body_data_cb, rsp_body_done_cb, this);
+        path, string(hostname), port, url, NULL,
+        boost::bind(&browser_t::response_meta_cb, this, _1, _2, _3),
+        boost::bind(&browser_t::response_body_data_cb, this, _1, _2, _3),
+        boost::bind(&browser_t::response_finished_cb, this, _1, true)
+        );
 
     string loadid = myhostname_;
     loadid += "-load-";
     loadid += lexical_cast<string>(loadnum_);
     req->add_header("x-load-id", loadid.c_str());
-    conn->submit_request(req);
+    connman_->submit_request(req);
     doc_req_instNum_ = req->instNum_;
     state = SB_FETCHING_DOCUMENT;
     validate_result_ = VR_SUCCESS;
@@ -502,17 +403,6 @@ browser_t::activate(const bool blocking)
         evbase_->dispatch();
     } else {
         evbase_->loop_nonblock();
-    }
-}
-
-void
-browser_t::request_about_to_send_cb(Request* req)
-{
-    logself(DEBUG, "begin");
-    if (req->instNum_ == doc_req_instNum_) {
-        myassert(0 == time_tsfb_);
-        time_tsfb_ = gettimeofdayMs(NULL);
-        logself(DEBUG, "time to send first byte: %u", time_tsfb_);
     }
 }
 
@@ -593,7 +483,7 @@ browser_t::is_page_done() const
 }
 
 void
-browser_t::response_body_done_cb(Request* req)
+browser_t::response_finished_cb(Request* req, bool success)
 {
     logself(DEBUG, "begin");
 
@@ -652,156 +542,6 @@ browser_t::response_body_done_cb(Request* req)
     }
 
     req->deleteLater(scheduleCallback);
-    logself(DEBUG, "done");
-}
-
-void
-browser_t::connection_error_cb(Connection *conn)
-{
-    logfn(SHADOW_LOG_LEVEL_WARNING, __func__, "connection error");
-    handle_unusable_conn(conn);
-}
-
-void
-browser_t::connection_eof_cb(Connection *conn)
-{
-    logfn(SHADOW_LOG_LEVEL_WARNING, __func__, "connection eof");
-    handle_unusable_conn(conn);
-}
-
-void
-browser_t::connection_first_recv_byte_cb(Connection *conn)
-{
-    if (time_trfb_) {
-        logfn(SHADOW_LOG_LEVEL_ERROR, __func__,
-              "time_trfb_ should be 0 but is %" PRIu64, time_trfb_);
-        myassert(0);
-    }
-    time_trfb_ = gettimeofdayMs(NULL);
-    myassert(time_trfb_ > 0);
-    logself(DEBUG, "time to rx first byte: %" PRIu64, time_trfb_);
-}
-
-void
-browser_t::handle_unusable_conn(Connection *conn)
-{
-    logself(DEBUG, "begin, cnx: %d", conn->instNum_);
-
-    // we should mark any requests being handled by this connection as
-    // error. for now, we don't attempt to request elsewhere.
-
-    release_conn(conn);
-
-    /* release_conn() only removes the conn from the pool. it does not
-     * yet delete the conn object. so we can still get its request
-     * queues.
-     */
-    if (!retry_requests(conn->get_active_request_queue())
-        || !retry_requests(conn->get_pending_request_queue()))
-    {
-        logself(DEBUG, "some problem in retrying requests");
-
-        /* so we get the total tx & rx byte counts */
-        close_all_connections();
-
-        report_failed_load("cnxerror");
-        stop_load();
-        // immediately schedule the next load. maybe need to start backing
-        // off getting consecutive errors
-        ++loadnum_;
-        notify();
-    }
-
-    logself(DEBUG, "done");
-}
-
-bool
-browser_t::retry_requests(queue<Request*> requests)
-{
-    logself(DEBUG, "begin");
-
-    while (!requests.empty()) {
-        Request* req = requests.front();
-        myassert(req);
-        requests.pop();
-        if (req->get_num_retries() == g_max_retries_per_resource) {
-            logfn(SHADOW_LOG_LEVEL_WARNING, __func__,
-                  "resource [%s] has exhausted %u retries",
-                  req->url_.c_str(), g_max_retries_per_resource);
-            return false;
-        }
-        req->increment_num_retries();
-        logself(DEBUG, "retrying resource [%s] for the %dth time",
-                req->url_.c_str(), req->get_num_retries());
-
-        if (req->get_body_size() > 0) {
-            /* the request "body_size()" represents number of
-             * contiguous bytes from 0 that we have received. so, we
-             * can use that as the next first_byte_pos.
-             */
-            req->set_first_byte_pos(req->get_body_size());
-            logself(DEBUG, "set first_byte_pos to %d",
-                    req->get_first_byte_pos());
-        }
-
-        Connection* newconn = get_connection(req->host_.c_str(), req->port_);
-        myassert(newconn);
-
-        myassert(0 == newconn->submit_request(req));
-        logfn(SHADOW_LOG_LEVEL_MESSAGE, __func__,
-              "re-requesting resource [%s] on connection %d",
-              req->url_.c_str(), newconn->instNum_);
-        if (time_trfb_ == 0) {
-            /* in our current design, if the time_trfb_ is 0, then we
-             * have not gotten even the first byte of the main html
-             * doc, and thus there should be no other request besides
-             * the main doc request.
-             */
-            myassert(req->instNum_ == doc_req_instNum_);
-            newconn->set_first_recv_byte_cb(cnx_first_recv_byte_cb);
-        }
-    }
-
-    logself(DEBUG, "done");
-    return true;
-}
-
-void
-browser_t::release_conn(Connection *conn)
-{
-    logself(DEBUG, "begin, releasing cnx %d", conn->instNum_);
-
-    // mark the cnx for deletion later. we don't want to do it here on
-    // the call stack of the cnx itself
-
-    totaltxbytes_ += conn->get_total_num_sent_bytes();
-    totalrxbytes_ += conn->get_total_num_recv_bytes();
-    
-    conn->deleteLater(scheduleCallback);
-
-    // already scheduled for deletion, now just forget about it
-    // remove it from active connections
-    map<string, list<Connection*> >::iterator it = connections_.begin();
-    while (it != connections_.end()) {
-        list<Connection*>& l = (it->second);
-        list<Connection*>::iterator finditer = std::find(
-            l.begin(), l.end(), conn);
-        if (finditer != l.end()) {
-            // conn is part of this list
-            l.erase(finditer);
-            if (l.size() == 0) {
-                logself(DEBUG,
-                        "list is now empty --> remove this list from map");
-                connections_.erase(it++);
-            }
-            break;
-        } else {
-            ++it;
-        }
-    }
-
-    // XXX/TODO: need to mark things as failed if appropriate
-
     logself(DEBUG, "done");
 }
 
@@ -923,17 +663,17 @@ browser_t::request_one_url(const char* url)
         }
     }
 
-    Connection* conn = get_connection(hostname, port);
-
     /// XXX what if the embedded resource has been already/being
     /// requested? e.g., multiple <img> tags pointing to the same
     /// url. for now, we don't allow that.
     myassert(!inMap(pending_requests_, string(url)));
     Request* req = new Request(
-        path, string(hostname), port, string(url), req_about_to_send_cb,
-        rsp_meta_cb, rsp_body_data_cb,
-        rsp_body_done_cb, this);
-    myassert(0 == conn->submit_request(req));
+        path, string(hostname), port, string(url), NULL,
+        boost::bind(&browser_t::response_meta_cb, this, _1, _2, _3),
+        boost::bind(&browser_t::response_body_data_cb, this, _1, _2, _3),
+        boost::bind(&browser_t::response_finished_cb, this, _1, true)
+        );
+    connman_->submit_request(req);
     pending_requests_[req->url_] = req;
 
     const size_t len = req->url_.length();
@@ -945,86 +685,6 @@ browser_t::request_one_url(const char* url)
     g_free(path);
     g_free(hostname);
 
-}
-
-Connection*
-browser_t::get_connection(const char* hostname, const uint16_t port)
-{
-    Connection* conn = NULL;
-    list<Connection*> * conns = NULL;
-    Connection *cnx_with_smallest_queue = NULL;
-    string netloc;
-
-    logself(DEBUG, "begin");
-
-    netloc = hostname;
-    netloc += string(":") + lexical_cast<string>(port);
-
-    logself(DEBUG, "netloc [%s]", netloc.c_str());
-
-    connections_[netloc]; /* this creates a new empty list for the
-			   * netloc if it doesn't exist yet */
-
-    //myassert (inMap(connections_, netloc));
-    conns = &(connections_[netloc]);
-
-    // first, find one with the smallest queue size
-    if (conns->size() > 0) {
-        list<Connection*>::const_iterator it = conns->begin();
-        cnx_with_smallest_queue = conns->front();
-        int minqsize = cnx_with_smallest_queue->get_queue_size();
-        if (minqsize > 0) {
-            for (; it != conns->end(); ++it) {
-                if ((*it)->get_queue_size() < minqsize) {
-                    cnx_with_smallest_queue = *it;
-                    minqsize = cnx_with_smallest_queue->get_queue_size();
-                    logself(DEBUG, "update cnx_with_smallest_queue to instnum %d, qsize %d",
-                            cnx_with_smallest_queue->instNum_, minqsize);
-                }
-            }
-        } else {
-            /* if we have an existing conn with empty queue --> just
-             * use it. */
-            //myassert(conn->is_idle());
-            conn = cnx_with_smallest_queue;
-            logself(DEBUG,
-                    "using connection instnum %d with empty queue (current number of connections to [%s] is %u)",
-                    conn->instNum_, netloc.c_str(), conns->size());
-            goto done;
-        }
-    }
-
-    /* either no existing cnx, or none that is idle */
-    if (conns->size() < max_persist_cnx_per_srv_) {
-        // can create more cnx -> create
-        logself(DEBUG, "only %d cnx to [%s] -> creating new one...",
-                conns->size(), netloc.c_str());
-        const in_addr_t addr = do_spdy_ ? 0 : browser_getaddr(hostname);
-        conn = new Connection(
-            evbase_,
-            addr, port,
-            socks5_addr_,
-            socks5_port_,
-            (do_spdy_ ? browser_getaddr(hostname) : 0),
-            (do_spdy_ ? SPDY_PORT : 0),
-            cnx_error_cb, cnx_eof_cb,
-            NULL, NULL, NULL,
-            this,
-            do_spdy_
-            );
-        myassert(conn);
-        logself(DEBUG, " ... with instNum_ %u", conn->instNum_);
-        conns->push_back(conn);
-    } else {
-        logself(DEBUG,
-                "reached max persist cnx per srv -> use cnx_with_smallest_queue");
-        myassert(cnx_with_smallest_queue);
-        conn = cnx_with_smallest_queue;
-    }
-
-done:
-    logself(DEBUG, "done, returning conn instNum %u", conn->instNum_);
-    return conn;
 }
 
 void
@@ -1069,6 +729,8 @@ browser_t::browser_t()
     evbase_ = new myevent_base(logfn);
     myassert(evbase_);
 
+    socks5_addr_ = 0;
+    socks5_port_ = 0;
     do_spdy_ = false;
     max_persist_cnx_per_srv_ = 6; // default
     think_times_cdf = NULL;
@@ -1076,6 +738,7 @@ browser_t::browser_t()
     page_specs_idx_ = 0;
     loadnum_ = 0;
     timeout_ms_ = -1;
+    connman_ = NULL;
 
     reset();
 
@@ -1101,9 +764,6 @@ browser_t::on_timeout_timer_fired(const uint32_t loadnum)
 
     if (loadnum == loadnum_) {
         logself(DEBUG, "cancel current load");
-
-        /* so we get the total tx & rx byte counts */
-        close_all_connections();
 
         report_failed_load("timedout");
         stop_load();
@@ -1163,9 +823,6 @@ browser_t::on_notified()
         logself(DEBUG, "load_done_timepoint_ %d", load_done_timepoint_);
 
         verify_page_load();
-
-        /* so we get the total tx & rx byte counts */
-        close_all_connections();
 
         report_result();
 
@@ -1257,6 +914,9 @@ browser_t::verify_page_load()
 void
 browser_t::report_failed_load(const char *reason) const
 {
+    size_t totaltxbytes = 0, totalrxbytes = 0;
+
+    connman_->get_total_bytes(totaltxbytes, totalrxbytes);
     char *s = NULL;
     asprintf(&s,
              "loadnum= %u, %s: FAILED: start= %" PRIu64 " reason= [%s] url= [%s] totalrxbytes= %zu",
@@ -1265,7 +925,7 @@ browser_t::report_failed_load(const char *reason) const
              load_start_timepoint_,
              reason,
              page_specs_[page_specs_idx_]->url_.c_str(),
-             (totalrxbytes_)
+             (totalrxbytes)
         );
     logfn(SHADOW_LOG_LEVEL_MESSAGE, __func__, "%s", s);
     free(s);
@@ -1274,8 +934,13 @@ browser_t::report_failed_load(const char *reason) const
 void
 browser_t::report_result() const
 {
+    size_t totaltxbytes = 0, totalrxbytes = 0;
+
     myassert(load_done_timepoint_ > load_start_timepoint_);
-    myassert(time_trfb_ > load_start_timepoint_);
+    const uint64_t timestamp_recv_first_byte = connman_->get_timestamp_recv_first_byte();
+    myassert(timestamp_recv_first_byte > load_start_timepoint_);
+
+    connman_->get_total_bytes(totaltxbytes, totalrxbytes);
     char *s = NULL;
     asprintf(&s,
              "loadnum= %u, %s: %s: start= %" PRIu64 " plt= %" PRIu64 " url= [%s] ttfb= %" PRIu64 " totalbodybytes= %zu totaltxbytes= %zu totalrxbytes= %zu numobjects= %u numerrorobjects= %u",
@@ -1285,10 +950,10 @@ browser_t::report_result() const
              load_start_timepoint_,
              (validate_result_ == VR_SUCCESS) ? (load_done_timepoint_ - load_start_timepoint_) : 0,
              page_specs_[page_specs_idx_]->url_.c_str(),
-             (validate_result_ == VR_SUCCESS) ? (time_trfb_ - load_start_timepoint_) : 0,
+             (validate_result_ == VR_SUCCESS) ? (timestamp_recv_first_byte - load_start_timepoint_) : 0,
              (totalbodybytes_),
-             (totaltxbytes_),
-             (totalrxbytes_),
+             (totaltxbytes),
+             (totalrxbytes),
              (totalnumobjects_),
              (totalnumerrorobjects_));
     logfn(SHADOW_LOG_LEVEL_MESSAGE, __func__, "%s", s);
@@ -1306,7 +971,7 @@ browser_t::close()
     }
 
     // kill all connections and requests
-    close_all_connections();
+    connman_->reset();
 
     {
         map<string, Request*>::iterator it = pending_requests_.begin();
@@ -1340,7 +1005,9 @@ browser_t::reset()
         req2mdctx.clear();
     }
 
-    close_all_connections();
+    if (connman_) {
+        connman_->reset();
+    }
 
     myassert(pending_requests_.size() == 0);
 
@@ -1348,32 +1015,13 @@ browser_t::reset()
     doc_req_instNum_ = -1;
     doc_content.clear();
     doc_expected_len_ = 0;
-    time_tsfb_ = time_trfb_ = 0;
     notified_ = false;
     validate_result_ = VR_NONE;
     totalnumerrorobjects_ = totalnumobjects_ = 0;
     totalbodybytes_ = 0;
-    totaltxbytes_ = totalrxbytes_ = 0;
     load_start_timepoint_ = load_done_timepoint_ = 0;
     received_resources_.clear();
     embedded_resources_.clear();
-}
-
-void
-browser_t::close_all_connections()
-{
-    map<string, list<Connection*> >::iterator it = connections_.begin();
-    for (; it != connections_.end(); ++it) {
-        list<Connection*>& l = it->second;
-        list<Connection*>::iterator listit = l.begin();
-        for (; listit != l.end(); ++listit) {
-            Connection* conn = *listit;
-            totaltxbytes_ += conn->get_total_num_sent_bytes();
-            totalrxbytes_ += conn->get_total_num_recv_bytes();
-            delete conn;
-        }
-    }
-    connections_.clear();
 }
 
 void
