@@ -99,7 +99,7 @@ message(STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}")
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/echo/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/filetransfer/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/browser/)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/browser/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/hello/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/ping/)
 add_subdirectory(${CMAKE_SOURCE_DIR}/torcontrol/)

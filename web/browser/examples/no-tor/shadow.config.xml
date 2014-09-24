@@ -1,7 +1,7 @@
 <shadow>
   <kill time="400"/>
   <topology path="~/.shadow/share/topology.graphml.xml"/>
-  <plugin id="browser" path="~/.shadow/plugins/libshadow-plugin-browser2.so"/>
+  <plugin id="browser" path="~/.shadow/plugins/libshadow-plugin-browser.so"/>
   <plugin id="webserver" path="~/.shadow/plugins/libshadow-plugin-webserver.so"/>
   <node id="server-1" iphint="103.23.108.107" geocodehint="TW" typehint="server" bandwidthup="102400" bandwidthdown="102400" quantity="1" cpufrequency="10000000">
     <application plugin="webserver" starttime="1" arguments="../htmlroot"/>
