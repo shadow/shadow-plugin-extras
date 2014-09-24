@@ -78,7 +78,7 @@ A filed load due to timeouts looks like:
 
 ## implementation
 
-This browser plugin opens multiple persistent HTTP connections per host. The browser submits requests onto connections, which notify the browser via callbacks as the response bytes flow in. If a connection fails, the browser tries to request the relevant objects on other new/existing connections. For partially received objects, the browser requests only the missing part.
+This browser plugin uses a connection manager that opens and maintains multiple persistent HTTP connections per server host. The browser (class) does not deal directly with connections but only submits requests to the connection manager. The connection manager handles queuing of the requests and submitting them to the managed connections. The connections notify the browser using callbacks (via the requests) as the response bytes flow in. If a connection fails, the connection manager tries to re-request the affected resources on other new/existing connections, asking for only the missing byte ranges.
 
 ### Dependency-via-JavaScript support format
 

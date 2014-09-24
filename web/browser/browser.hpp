@@ -27,7 +27,7 @@
 #include <queue>
 
 #include "request.hpp"
-#include "connection.hpp"
+#include "connection_manager.hpp"
 #include "common.hpp"
 #include "shd-html.hpp"
 
@@ -67,13 +67,6 @@ public:
     ~browser_t();
 
     void start(int argc, char *argv[]);
-    void request_about_to_send_cb(Request* req);
-    void response_meta_cb(const int& status, char **headers, Request* req);
-    void response_body_data_cb(const uint8_t *data, const size_t& len, Request* req);
-    void response_body_done_cb(Request* req);
-    void connection_error_cb(Connection* conn);
-    void connection_eof_cb(Connection* conn);
-    void connection_first_recv_byte_cb(Connection* conn);
     void activate(const bool blocking);
     void on_notified();
     void on_timeout_timer_fired(const uint32_t loadnum);
@@ -148,13 +141,11 @@ private:
     void report_failed_load(const char *reason) const;
     /* reset state so that we're ready to load another page */
     void reset();
-    void close_all_connections();
     void request_embedded_objects();
-    void handle_unusable_conn(Connection *conn);
-    bool retry_requests(std::queue<Request*> requests);
-    /* schedule the cnx for deletion (in whichever state it is) and
-     * then forget about it */
-    void release_conn(Connection *conn);
+
+    void response_meta_cb(const int& status, char **headers, Request* req);
+    void response_body_data_cb(const uint8_t *data, const size_t& len, Request* req);
+    void response_finished_cb(Request* req, bool success);
 
     static uint32_t nextInstNum;
     
@@ -167,14 +158,13 @@ private:
     std::string socks5_host_;
     in_addr_t socks5_addr_;
     uint16_t socks5_port_;
-    /* map key is netloc ("hostname:port") */
-    std::map<std::string, std::list<Connection*> > connections_;
+
+    ConnectionManager* connman_;
+
     int max_persist_cnx_per_srv_;
 
     /* statistics */
     size_t totalbodybytes_; /* only response bodies */
-    size_t totaltxbytes_; /* all tx bytes for _one_ page load */
-    size_t totalrxbytes_; /* all rx bytes for _one_ page load */
     uint16_t totalnumobjects_;
     uint16_t totalnumerrorobjects_;
     uint64_t load_start_timepoint_;
@@ -204,13 +194,10 @@ private:
     /* map key is Request's instNum_, value is the text of the
      * script */
     std::map<uintptr_t, std::string> scriptReq2BodyText;
-    uint64_t time_tsfb_; // time sending first byte
-    uint64_t time_trfb_; // time receiving first byte
     bool do_spdy_;
     CumulativeDistribution* think_times_cdf;
     boost::variate_generator<boost::mt19937, boost::uniform_real<> > *think_time_rand_gen;
 
-    Connection* get_connection(const char* hostname, const uint16_t port);
     void request_one_url(const char* url);
     void process_a_script(const ScriptResource& sr);
 

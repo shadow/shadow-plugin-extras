@@ -3,19 +3,19 @@
 
 #include <string>
 #include <vector>
+#include <boost/function.hpp>
 
 class Connection;
 class Request;
 
-typedef void (*ResponseMetaCb)(
-    const int status, char **headers, Request* req, void* cb_data);
+
+typedef boost::function<void(const int status, char **headers, Request* req)> ResponseMetaCb;
 /* tell the user of a block of response body data */
-typedef void (*ResponseBodyDataCb)(
-    const uint8_t *data, const size_t& len, Request* req, void* cb_data);
+typedef boost::function<void(const uint8_t *data, const size_t& len, Request* req)> ResponseBodyDataCb;
 /* tell the user there will be no more response body data */
-typedef void (*ResponseBodyDoneCb)(Request *req, void* cb_data);
+typedef boost::function<void(Request *req)> ResponseBodyDoneCb;
 /* tell the user the request is about to be sent into the network */
-typedef void (*RequestAboutToSendCb)(Request *req, void* cb_data);
+typedef boost::function<void(Request *req)> RequestAboutToSendCb;
 
 
 class Request {
@@ -24,7 +24,7 @@ public:
             const std::string& url,
             RequestAboutToSendCb req_about_to_send_cb,
             ResponseMetaCb rsp_meta_cb, ResponseBodyDataCb rsp_body_data_cb,
-            ResponseBodyDoneCb rsp_body_done_cb, void *cb_data
+            ResponseBodyDoneCb rsp_body_done_cb
         );
     ~Request();
 
@@ -35,18 +35,18 @@ public:
 
     // for response
     void notify_rsp_meta(const int status, char ** headers) {
-        rsp_meta_cb_(status, headers, this, cb_data_);
+        rsp_meta_cb_(status, headers, this);
     }
     void notify_rsp_body_data(const uint8_t *data, const size_t& len) {
         body_size_ += len;
-        rsp_body_data_cb_(data, len, this, cb_data_);
+        rsp_body_data_cb_(data, len, this);
     }
     void notify_rsp_body_done() {
-        rsp_body_done_cb_(this, cb_data_);
+        rsp_body_done_cb_(this);
     }
     void notify_req_about_to_send() {
         if (req_about_to_send_cb_) {
-            req_about_to_send_cb_(this, cb_data_);
+            req_about_to_send_cb_(this);
         }
     }
     const std::string& get_path() const { return path_; }
@@ -83,7 +83,6 @@ private:
     ResponseMetaCb rsp_meta_cb_;
     ResponseBodyDataCb rsp_body_data_cb_;
     ResponseBodyDoneCb rsp_body_done_cb_;
-    void* cb_data_;
 
     /* for Range requests. currently only support first_byte_pos. will
      * always include a range.

@@ -217,7 +217,7 @@ Connection::http_write_to_outbuf()
     logself(DEBUG, "writing a req to outbuf");
     req = submitted_req_queue_.front();
     myassert(req);
-    submitted_req_queue_.pop();
+    submitted_req_queue_.pop_front();
 
     myassert(0 < evbuffer_add_printf(
                outbuf_, "GET %s HTTP/1.1\r\n", req->path_.c_str()));
@@ -289,7 +289,7 @@ Connection::submit_request(Request* req)
         free(nv);
         enable_write_to_server_();
     } else {
-        submitted_req_queue_.push(req);
+        submitted_req_queue_.push_back(req);
         /* http_write_to_outbuf() takes care of enabling the write
          * event. */
         http_write_to_outbuf();
@@ -372,8 +372,7 @@ Connection::Connection(
     , addr_(addr), port_(port)
     , socks5_addr_(socks5_addr), socks5_port_(socks5_port)
     , ssp_addr_(ssp_addr), ssp_port_(ssp_port)
-    , cnx_error_cb_(error_cb), cnx_eof_cb_(eof_cb), cb_data_(cb_data)
-    , cnx_first_recv_byte_cb_(NULL)
+    , cnx_error_cb_(error_cb), cnx_eof_cb_(eof_cb)
     , notify_pushed_meta_(pushed_meta_cb)
     , notify_pushed_body_data_(pushed_body_data_cb)
     , notify_pushed_body_done_(pushed_body_done_cb)
@@ -424,10 +423,16 @@ Connection::get_active_request_queue() const
     return active_req_queue_;
 }
 
-std::queue<Request*>
+std::deque<Request*>
 Connection::get_pending_request_queue() const
 {
     return submitted_req_queue_;
+}
+
+void
+Connection::set_request_done_cb(ConnectionRequestDoneCb cb)
+{
+    notify_request_done_cb_ = cb;
 }
 
 static void
@@ -584,9 +589,9 @@ read_more:
         } else {
             myassert(numread > 0);
             if (0 == cumulative_num_recv_bytes_
-                && NULL != cnx_first_recv_byte_cb_)
+                && cnx_first_recv_byte_cb_)
             {
-                cnx_first_recv_byte_cb_(this, cb_data_);
+                cnx_first_recv_byte_cb_(this);
             }
             cumulative_num_recv_bytes_ += numread;
             logself(DEBUG, "able to read %zd bytes", numread);
@@ -771,6 +776,9 @@ handle_response:
             req->notify_rsp_body_done();
             body_len_ = -1;
             http_rsp_state_ = HTTP_RSP_STATE_STATUS_LINE;
+            if (!notify_request_done_cb_.empty()) {
+                notify_request_done_cb_(this, req);
+            }
             /* if there's more in the submitted queue, we should be
              * able move some into the active queue, now that we just
              * cleared some space in the active queue
@@ -837,14 +845,14 @@ void
 Connection::on_eof()
 {
 //    disconnect(); // let the user delete us
-    cnx_eof_cb_(this, cb_data_);
+    cnx_eof_cb_(this);
 }
 
 void
 Connection::on_error()
 {
 //    disconnect(); // let the user delete us
-    cnx_error_cb_(this, cb_data_);
+    cnx_error_cb_(this);
 }
 
 int
@@ -1158,9 +1166,9 @@ Connection::spdylay_recv_cb(spdylay_session *session, uint8_t *buf,
         logself(DEBUG, "able to read %zd bytes", numread);
         retval = numread;
         if (0 == cumulative_num_recv_bytes_
-            && NULL != cnx_first_recv_byte_cb_)
+            && cnx_first_recv_byte_cb_)
         {
-            cnx_first_recv_byte_cb_(this, cb_data_);
+            cnx_first_recv_byte_cb_(this);
         }
         cumulative_num_recv_bytes_ += numread;
     }
