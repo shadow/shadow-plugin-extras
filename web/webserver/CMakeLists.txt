@@ -5,7 +5,7 @@ project(webserver CXX)
 ## Find libtidy which is needed to parse HTML
 find_package(EVENT2 REQUIRED)
 
-include_directories(AFTER ${EVENT2_INCLUDES} ${CMAKE_SOURCE_DIR}/web/utility)
+include_directories(AFTER ${EVENT2_INCLUDES} ${CMAKE_SOURCE_DIR}/utility)
 
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 

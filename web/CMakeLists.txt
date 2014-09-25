@@ -64,11 +64,12 @@ endif()
 
 ## we use cmake files from shadow
 set(CMAKE_MODULE_PATH "${SHADOW_ROOT}/share/cmake/Modules")
-if(EXISTS "${CMAKE_MODULE_PATH}")
-    message(STATUS "CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
-else()
-    message(FATAL_ERROR "CMAKE_MODULE_PATH path does not exist: '${CMAKE_MODULE_PATH}'")
-endif()
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
+# if(EXISTS "${CMAKE_MODULE_PATH}")
+#     message(STATUS "CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
+# else()
+#     message(FATAL_ERROR "CMAKE_MODULE_PATH path does not exist: '${CMAKE_MODULE_PATH}'")
+# endif()
 include_directories(${CMAKE_MODULE_PATH})
 
 ## we need to use LLVM to build the plug-ins
@@ -97,10 +98,5 @@ message(STATUS "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}")
 
 ## recurse to build each plug-in
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/echo/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/filetransfer/)
-#add_subdirectory(${CMAKE_SOURCE_DIR}/browser/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/hello/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/ping/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/torcontrol/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/torrent/)
+add_subdirectory(${CMAKE_SOURCE_DIR}/browser/)
+add_subdirectory(${CMAKE_SOURCE_DIR}/webserver/)
