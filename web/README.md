@@ -7,8 +7,8 @@ to work.
 
 The following are required in addition to those Shadow requires:
 
-    * `boost`
-    * `spdylay` (https://github.com/tatsuhiro-t/spdylay)
+* `boost`
+* `spdylay` (https://github.com/tatsuhiro-t/spdylay)
 
 # quick setup
 
