@@ -48,8 +48,8 @@ USAGE: `--socks5 <host:port>|none --max-persist-cnx-per-srv ...|none --page-spec
 Successful loads look like:
 
 ```
-[report_result] loadnum= 2, vanilla: success: start= 28328 plt= 168 url= [http://server-3/one-file.bin] ttfb= 168 totalbodybytes= 12345 totaltxbytes= 80 totalrxbytes= 12446 numobjects= 1 numerrorobjects= 0
-[report_result] loadnum= 7, vanilla: success: start= 189154 plt= 564 url= [http://server-2/index.html] ttfb= 156 totalbodybytes= 82125 totaltxbytes= 316 totalrxbytes= 82807 numobjects= 7 numerrorobjects= 0
+[report_result] loadnum= 2, vanilla: success: start= 28328 plt= 168 url= [http://server-3/one-file.bin] ttfb= 168 rxbodybytes= 12345 txbytes= 80 rxbytes= 12446 numobjects= 1 numerrorobjects= 0
+[report_result] loadnum= 7, vanilla: success: start= 189154 plt= 564 url= [http://server-2/index.html] ttfb= 156 rxbodybytes= 82125 txbytes= 316 rxbytes= 82807 numobjects= 7 numerrorobjects= 0
 ```
 
 All time fields are in milliseconds unless otherwise specified:
@@ -57,9 +57,9 @@ All time fields are in milliseconds unless otherwise specified:
    * `start`: time when the load started.
    * `plt`: "page load time," the elapsed time to complete the page/file download.
    * `ttfb`: the elapsed time to receive the first byte of the page/file download.
-   * `totaltxbytes`: total number of bytes sent.
-   * `totalbodybytes`: total number of bytes of the response bodies.
-   * `totalrxbytes`: total number of bytes received, including meta/control info such as headers.
+   * `txbytes`: total number of bytes sent.
+   * `rxbodybytes`: total number of bytes of the response bodies.
+   * `rxbytes`: total number of bytes received, including meta/control info such as headers.
    * `numobjects`: total number of resources downloaded during this page/file load.
    * `numerrorobjects`: total number of problematic resources downloaded during this page/file load.
 
@@ -67,13 +67,13 @@ A failed load due to digest mismatch(s) looks like:
 
 ```
 [validate_one_resource] error: resource [http://server-2/2.jpg] expected digest= 397a954c5c507621521f3108612441aF, actual= 397a954c5c507621521f3108612441af
-[report_result] loadnum= 7, vanilla: FAILED: start= 189154 plt= 0 url= [http://server-2/index.html] ttfb= 0 totalbodybytes= 82125 totaltxbytes= 316 totalrxbytes= 82807 numobjects= 7 numerrorobjects= 1
+[report_result] loadnum= 7, vanilla: FAILED: start= 189154 plt= 0 url= [http://server-2/index.html] ttfb= 0 rxbodybytes= 82125 txbytes= 316 rxbytes= 82807 numobjects= 7 numerrorobjects= 1
 ```
 
 A filed load due to timeouts looks like:
 
 ```
-[report_failed_load] loadnum= 160, vanilla: FAILED: start= 841181 reason= [timedout] url= [http://server-2/index.html] totalrxbytes= 41317
+[report_failed_load] loadnum= 160, vanilla: FAILED: start= 841181 reason= [timedout] url= [http://server-2/index.html] rxbytes= 41317
 ```
 
 ## implementation
