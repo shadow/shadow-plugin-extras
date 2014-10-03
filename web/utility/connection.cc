@@ -230,9 +230,11 @@ Connection::http_write_to_outbuf()
     }
 
     first_byte_pos_ = req->get_first_byte_pos();
-    logself(DEBUG, "adding first_byte_pos_ %zu", first_byte_pos_);
-    myassert(0 < evbuffer_add_printf(
-                 outbuf_, "Range: bytes=%zu-\r\n", first_byte_pos_));
+    if (first_byte_pos_ > 0) {
+        logself(DEBUG, "adding first_byte_pos_ %zu", first_byte_pos_);
+        myassert(0 < evbuffer_add_printf(
+                     outbuf_, "Range: bytes=%zu-\r\n", first_byte_pos_));
+    }
 
     myassert(2 == evbuffer_add_printf(outbuf_, "\r\n"));
     active_req_queue_.push(req);
@@ -676,9 +678,9 @@ handle_response:
                 myassert(body_len_ >= 0);
                 myassert(0 == (rsp_hdrs_.size() % 2));
 
-                if (!content_range_found) {
+                if (!content_range_found && first_byte_pos_ > 0) {
                     logfn(SHADOW_LOG_LEVEL_ERROR, __func__,
-                          "response is missing content-range header.");
+                          "content-range header is missing in response.");
                     myassert(0);
                 }
 
