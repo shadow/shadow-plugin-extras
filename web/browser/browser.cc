@@ -938,7 +938,13 @@ browser_t::report_result() const
 
     myassert(load_done_timepoint_ > load_start_timepoint_);
     const uint64_t timestamp_recv_first_byte = connman_->get_timestamp_recv_first_byte();
-    myassert(timestamp_recv_first_byte > load_start_timepoint_);
+    /* if no connection succeeded in receiving any byte, then
+     * timestamp_recv_first_byte would be 0 */
+    if (timestamp_recv_first_byte) {
+        myassert(timestamp_recv_first_byte > load_start_timepoint_);
+    } else {
+        myassert(validate_result_ != VR_SUCCESS);
+    }
 
     connman_->get_total_bytes(totaltxbytes, totalrxbytes);
     char *s = NULL;
