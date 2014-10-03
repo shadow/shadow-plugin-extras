@@ -260,7 +260,9 @@ private:
     std::vector<char *> rsp_hdrs_; // DO free every _other_ one of
                                    // these ptrs (i.e., index 0, 2, 4,
                                    // etc)
-    size_t first_byte_pos_; // copied from the request obj
+    size_t first_byte_pos_; // copied from the request obj. will
+                            // include a range request header only if
+                            // first_byte_pos_ > 0.
     ssize_t body_len_; // -1, or amount of data _left_ to read from
                        // server/deliver to user. this is of the
                        // response body only, and not of the full

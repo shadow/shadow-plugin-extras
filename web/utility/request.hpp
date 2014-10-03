@@ -84,9 +84,7 @@ private:
     ResponseBodyDataCb rsp_body_data_cb_;
     ResponseBodyDoneCb rsp_body_done_cb_;
 
-    /* for Range requests. currently only support first_byte_pos. will
-     * always include a range.
-     */
+    /* for Range requests. currently only support first_byte_pos */
     size_t first_byte_pos_;
 
     uint8_t num_retries_;

@@ -919,7 +919,7 @@ browser_t::report_failed_load(const char *reason) const
     connman_->get_total_bytes(totaltxbytes, totalrxbytes);
     char *s = NULL;
     asprintf(&s,
-             "loadnum= %u, %s: FAILED: start= %" PRIu64 " reason= [%s] url= [%s] totalrxbytes= %zu",
+             "loadnum= %u, %s: FAILED: start= %" PRIu64 " reason= [%s] url= [%s] rxbytes= %zu",
              loadnum_,
              (do_spdy_ ? "spdy" : "vanilla"),
              load_start_timepoint_,
@@ -938,12 +938,18 @@ browser_t::report_result() const
 
     myassert(load_done_timepoint_ > load_start_timepoint_);
     const uint64_t timestamp_recv_first_byte = connman_->get_timestamp_recv_first_byte();
-    myassert(timestamp_recv_first_byte > load_start_timepoint_);
+    /* if no connection succeeded in receiving any byte, then
+     * timestamp_recv_first_byte would be 0 */
+    if (timestamp_recv_first_byte) {
+        myassert(timestamp_recv_first_byte > load_start_timepoint_);
+    } else {
+        myassert(validate_result_ != VR_SUCCESS);
+    }
 
     connman_->get_total_bytes(totaltxbytes, totalrxbytes);
     char *s = NULL;
     asprintf(&s,
-             "loadnum= %u, %s: %s: start= %" PRIu64 " plt= %" PRIu64 " url= [%s] ttfb= %" PRIu64 " totalbodybytes= %zu totaltxbytes= %zu totalrxbytes= %zu numobjects= %u numerrorobjects= %u",
+             "loadnum= %u, %s: %s: start= %" PRIu64 " plt= %" PRIu64 " url= [%s] ttfb= %" PRIu64 " rxbodybytes= %zu txbytes= %zu rxbytes= %zu numobjects= %u numerrorobjects= %u",
              loadnum_,
              (do_spdy_ ? "spdy" : "vanilla"),
              (validate_result_ == VR_SUCCESS) ? "success" : "FAILED",
