@@ -8,7 +8,7 @@
 #include <glib.h>
 #include <assert.h>
 
-#include "shd-cdf.h"
+#include "cdf.h"
 
 struct _CumulativeDistributionEntry {
 	gdouble fraction;
