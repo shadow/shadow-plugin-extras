@@ -209,20 +209,37 @@ gdouble cdf_getValue(CumulativeDistribution* cdf, gdouble percentile) {
 
 	GList* item = reverse ? g_list_last(cdf->entries) : g_list_first(cdf->entries);
 
+	CumulativeDistributionEntry* prev_entry = NULL;
 	while(item) {
 		CumulativeDistributionEntry* entry = item->data;
 
-		gboolean found = reverse ? (entry->fraction <= percentile) : (entry->fraction >= percentile);
+		if (reverse) {
+            if (entry->fraction == percentile) {
+                return entry->value;
+            } else if (entry->fraction < percentile) {
+                /* the first time we see an entry strictly less
+                 * than percentile, then return the entry we saw
+                 * in the previous iteration.
+                 */
+                return prev_entry->value;
+            } else {
+                prev_entry = entry;
+            }
+        } else {
+            if (entry->fraction >= percentile) {
+                return entry->value;
+            }
+        }
 
-		if(found) {
-			return entry->value;
-		} else {
-			item = reverse ? g_list_previous(item) : g_list_next(item);
-		}
+        item = reverse ? g_list_previous(item) : g_list_next(item);
 	}
 
-	/* TODO didnt find it... is this an error? */
-	return (gdouble) 0;
+	if (reverse) {
+        return prev_entry->value;
+    } else {
+        g_assert(FALSE); // should not be reached
+        return 0; // to silence 'may reach end non-void func' warning
+    }
 }
 
 GQuark* cdf_getIDReference(CumulativeDistribution* cdf) {
