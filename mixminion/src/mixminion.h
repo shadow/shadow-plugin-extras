@@ -18,6 +18,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <errno.h>
+#include <time.h>
 
 #include <shd-library.h>
 
@@ -26,14 +27,24 @@ struct _Mixminion {
      * needs level, functionname, and format */
     ShadowLogFunc slogf;
 
+    /* The module from which we import our functions */
+    PyObject *module;
+
     /* The server object on which we run */
     PyObject *server;
+
+    /* The run function */
+    PyObject *run_server_step;
+    PyObject *run_server_step_args;
+
+    /* Stop functio */
+    PyObject *server_stop;
 };
 typedef struct _Mixminion Mixminion;
 
 int main(int, char **);
 Mixminion *mixminion_new(int, char **, ShadowLogFunc);
-void mixminion_ready(Mixminion *);
+int mixminion_ready(Mixminion *);
 void mixminion_free(Mixminion *);
 
 #endif /* MIXMINOION_H_ */
