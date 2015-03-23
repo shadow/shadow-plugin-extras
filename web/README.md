@@ -3,6 +3,9 @@ be used together. Mixing with other plugins, e.g., the `browser` and
 `filetransfer` plugins in the top level directory, is not guaranteed
 to work.
 
+NOTE: This is unpolished "research"-quality code. You should expect
+rough edges.
+
 # dependencies
 
 The following are required in addition to those Shadow requires:
