@@ -18,7 +18,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <errno.h>
-#include <time.h>
 
 #include <shd-library.h>
 
@@ -30,15 +29,9 @@ struct _Mixminion {
     /* The module from which we import our functions */
     PyObject *module;
 
-    /* The server object on which we run */
-    PyObject *server;
-
-    /* The run function */
-    PyObject *run_server_step;
-    PyObject *run_server_step_args;
-
-    /* Stop functio */
-    PyObject *server_stop;
+    PyObject *handle; /* Returned on start */
+    PyObject *process; /* When data is ready */
+    PyObject *finish; /* Shutdown */
 };
 typedef struct _Mixminion Mixminion;
 

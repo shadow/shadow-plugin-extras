@@ -7,7 +7,7 @@ include_directories(/usr/include/python2.7)
 #add_plugin(shadow-plugin-mixminion shadow-plugin-mixminion-bitcode)
 #target_link_libraries(shadow-plugin-mixminion)
 #install(TARGETS shadow-plugin-mixminion DESTINATION plugins)
-
+file (COPY src/mixminion-runner.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 ## create and install an executable that can run outside of shadow
 add_executable(mixminion src/mixminion-main.c src/mixminion.c)
 target_link_libraries(mixminion python2.7)
