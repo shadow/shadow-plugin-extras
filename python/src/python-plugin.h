@@ -21,10 +21,13 @@
 
 #include <shd-library.h>
 
-struct _Mixminion {
+struct _python_data {
     /* the function we use to log messages
      * needs level, functionname, and format */
-    ShadowLogFunc slogf;
+    ShadowLogFunc log;
+
+    /* The used sub-interpreter */
+    PyThreadState *interpreter;
 
     /* The module from which we import our functions */
     PyObject *module;
@@ -33,11 +36,11 @@ struct _Mixminion {
     PyObject *process; /* When data is ready */
     PyObject *finish; /* Shutdown */
 };
-typedef struct _Mixminion Mixminion;
+typedef struct _python_data python_data;
 
 int main(int, char **);
-Mixminion *mixminion_new(int, char **, ShadowLogFunc);
-int mixminion_ready(Mixminion *);
-void mixminion_free(Mixminion *);
+python_data *python_new(int, char **, ShadowLogFunc);
+int python_ready(python_data *);
+void python_free(python_data *);
 
 #endif /* MIXMINOION_H_ */
