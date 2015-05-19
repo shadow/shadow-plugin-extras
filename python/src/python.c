@@ -179,12 +179,13 @@ int python_ready(python_data *m) {
     }
     retval = PyObject_Call(m->process, args, NULL);
     if(retval == NULL) {
+        m->log(SHADOW_LOG_LEVEL_ERROR, __FUNCTION__, "Unexpected return during process, aborting");
         PyErr_Print();
         Py_XDECREF(args);
-        python_free(m);
+        PyThreadState_Swap(saved_tstate);
         return 1;
     }
-    int retint = PyObject_Not(retval);
+    int retint = PyObject_IsTrue(retval);
     Py_XDECREF(args);
     Py_XDECREF(retval);
     PyThreadState_Swap(saved_tstate);
@@ -193,6 +194,7 @@ int python_ready(python_data *m) {
 
 void python_free(python_data *m) {
     if(m != NULL) {
+        m->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_free called");
         /* we need to switch to our interpreter */
         PyThreadState *saved_tstate = PyThreadState_Get();
         if(m->interpreter)

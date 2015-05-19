@@ -9,9 +9,9 @@
  static void _mylog(ShadowLogLevel level, const char* functionName, const char* format, ...) {
     va_list variableArguments;
     va_start(variableArguments, format);
-    vprintf(format, variableArguments);
+    vfprintf(stderr, format, variableArguments);
     va_end(variableArguments);
-    printf("%s", "\n");
+    fprintf(stderr, "%s", "\n");
 }
 
 int STOP_INTERPRETER = 0;
