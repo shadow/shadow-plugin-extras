@@ -45,8 +45,45 @@ static PyObject *prepare_interpreter(int argc, char *argv[], python_data *m) {
     if(!m->interpreter)
         return NULL;
 
+#if PY_MAJOR_VERSION >= 3
+    /* On Python 3 we need to convert them to wchar's */
+    wchar_t **argv_w = calloc(argc, sizeof(wchar_t *));
+    if(!argv_w) {
+        PyErr_SetString(PyExc_RuntimeError, "Out of memory");
+        return NULL;
+    }
+
+    int i;
+    for(i = 0; i < argc; i++) {
+        int req_size = mbstowcs(NULL, argv[i], 0) + 1;
+        if(req_size <= 1) {
+            PyErr_SetString(PyExc_RuntimeError, "Can't determine arg size");
+            return NULL;
+        }
+        argv_w[i] = calloc(req_size, sizeof(wchar_t));
+        if(!argv_w[i]) {
+            PyErr_SetString(PyExc_RuntimeError, "Out of memory");
+            return NULL;
+        }
+        if(mbstowcs(argv_w[i], argv[i], req_size) <= 0) {
+            PyErr_SetString(PyExc_RuntimeError, "Can't convert char to wchar");
+            return NULL;
+        }
+    }
+
+    /* Now we can set argv_w */
+    PySys_SetArgv(argc-1, argv_w+1);
+
+    /* Clean up acquired memory */
+    for(i = 0; i < argc; i ++) {
+        free(argv_w[i]);
+    }
+    free(argv_w);
+    PyObject *argv0 = PyUnicode_FromString(argv[1]);
+#else
     PySys_SetArgv(argc-1, argv+1);
     PyObject *argv0 = PyString_FromString(argv[1]);
+#endif
     if(!argv0)
         return NULL;
 
@@ -59,7 +96,11 @@ static PyObject *prepare_interpreter(int argc, char *argv[], python_data *m) {
     }
     PyObject *path, *mod_filename;
     if(split_size == 1) {
+#if PY_MAJOR_VERSION >= 3
+        path = PyUnicode_FromString(".");
+#else
         path = PyString_FromString(".");
+#endif
         mod_filename = PyList_GetItem(split_result, 0);
     } else {
         /* split_size == 2 */
@@ -116,7 +157,17 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
 
     log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__, "python_new called");
     /* Must be the first thing we do to get everything else started */
+#if PY_MAJOR_VERSION >= 3
+    int req_size = mbstowcs(NULL, argv[0], 0) + 1;
+    assert(req_size > 1);
+    wchar_t *argv_w0 = calloc(req_size, sizeof(wchar_t));
+    assert(argv_w0);
+    assert(mbstowcs(argv_w0, argv[0], req_size) > 0);
+    wprintf(L"Program name: %s or %ls\n", argv[0], argv_w0);
+    Py_SetProgramName(argv_w0);
+#else
     Py_SetProgramName(argv[0]);
+#endif
     Py_Initialize();
 
     /* We start a new sub interpreter, so we back the old one up to 
