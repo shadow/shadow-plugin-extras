@@ -29,6 +29,10 @@ struct _python_data {
     /* The used sub-interpreter */
     PyThreadState *interpreter;
 
+    /* Our two logger instances */
+    PyObject *stdout_logger;
+    PyObject *stderr_logger;
+
     /* The module from which we import our functions */
     PyObject *module;
 
@@ -42,5 +46,6 @@ int main(int, char **);
 python_data *python_new(int, char **, ShadowLogFunc);
 int python_ready(python_data *);
 void python_free(python_data *);
+PyObject* init_logger();
 
 #endif /* MIXMINOION_H_ */

@@ -2,14 +2,15 @@
 
 include_directories(/home/javex/.shadow/include/python2.7)
 find_library(PYTHON python2.7 /home/javex/.shadow/lib/)
+link_directories(/home/javex/.shadow/lib/)
 ## create and install a shared library that can plug into shadow
-add_bitcode(shadow-plugin-python-bitcode src/python-plugin.c src/python.c)
+add_bitcode(shadow-plugin-python-bitcode src/python-plugin.c src/python.c src/python-logging.c)
 add_plugin(shadow-plugin-python shadow-plugin-python-bitcode)
 target_link_libraries(shadow-plugin-python ${PYTHON})
 install(TARGETS shadow-plugin-python DESTINATION plugins)
 
 ## create and install an executable that can run outside of shadow
-add_executable(shadow-python src/python-main.c src/python.c)
+add_executable(shadow-python src/python-main.c src/python.c src/python-logging.c)
 target_link_libraries(shadow-python ${PYTHON})
 install(TARGETS shadow-python DESTINATION bin)
 

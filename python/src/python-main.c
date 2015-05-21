@@ -8,6 +8,7 @@
 
  static void _mylog(ShadowLogLevel level, const char* functionName, const char* format, ...) {
     va_list variableArguments;
+    fprintf(stderr, "Shadow-Log: ");
     va_start(variableArguments, format);
     vfprintf(stderr, format, variableArguments);
     va_end(variableArguments);

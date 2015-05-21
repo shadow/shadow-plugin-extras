@@ -3,34 +3,6 @@
  */
 
 #include "python-plugin.h"
-#include "pygetopt.h"
-#include "osdefs.h"
-#include "code.h" /* For CO_FUTURE_DIVISION */
-#include "import.h"
-
-#ifdef __VMS
-#include <unixlib.h>
-#endif
-
-#if defined(MS_WINDOWS) || defined(__CYGWIN__)
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-#endif
-
-#define COPYRIGHT \
-    "Type \"help\", \"copyright\", \"credits\" or \"license\" " \
-    "for more information."
-
-#if (defined(PYOS_OS2) && !defined(PYCC_GCC)) || defined(MS_WINDOWS)
-#define PYTHONHOMEHELP "<prefix>\\lib"
-#else
-#if defined(PYOS_OS2) && defined(PYCC_GCC)
-#define PYTHONHOMEHELP "<prefix>/Lib"
-#else
-#define PYTHONHOMEHELP "<prefix>/pythonX.X"
-#endif
-#endif
 
 
 static PyObject *prepare_interpreter(int argc, char *argv[], python_data *m) {
@@ -182,6 +154,16 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     if(!(module_name = prepare_interpreter(argc, argv, m)))
          PYERR();
 
+    PyObject *shd_py = init_logger();
+    if(!shd_py)
+        PYERR();
+    PyObject *log_capsule = PyCapsule_New((void *)m->log, NULL, NULL);
+    m->stdout_logger = PyObject_CallMethod(shd_py, "Logger", "(isO)", SHADOW_LOG_LEVEL_MESSAGE, "stdout", log_capsule);
+    m->stderr_logger = PyObject_CallMethod(shd_py, "Logger", "(isO)", SHADOW_LOG_LEVEL_WARNING, "stderr", log_capsule);
+    Py_DECREF(log_capsule);
+    if(!m->stdout_logger || !m->stderr_logger)
+        PYERR();
+
     m->module = PyImport_Import(module_name);
     if(m->module == NULL)
         PYERR();
@@ -263,12 +245,11 @@ void python_free(python_data *m) {
                 PyErr_Print();
             }
         }
-        if(m->process)
-            Py_XDECREF(m->process);
-        if(m->handle)
-            Py_XDECREF(m->handle);
-        if(m->module)
-            Py_XDECREF(m->module);
+        Py_XDECREF(m->process);
+        Py_XDECREF(m->handle);
+        Py_XDECREF(m->module);
+        Py_XDECREF(m->stdout_logger);
+        Py_XDECREF(m->stderr_logger);
 
         if(m->interpreter)
             Py_EndInterpreter(m->interpreter);
