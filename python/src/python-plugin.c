@@ -5,6 +5,20 @@ ShadowFunctionTable shadowlib;
 /* our opaque instance of the python node */
 python_data* pyInstance = NULL;
 
+/* shadow is notifying us that some descriptors are ready to read/write */
+static void pythonplugin_ready() {
+    /* shadow wants to handle some descriptor I/O. pass this to the lower level
+     * plug-in function that implements this for both plug-in and non-plug-in modes.
+     */
+    // pyInstance->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_ready called");
+    python_ready(pyInstance);
+}
+
+static void pythonplugin_periodic_cb(void *data) {
+    pythonplugin_ready();
+    shadowlib.createCallback(&pythonplugin_periodic_cb, NULL, 100);
+}
+
 /* shadow is creating a new instance of this plug-in as a node in
  * the simulation. argc and argv are as configured via the XML.
  */
@@ -18,6 +32,12 @@ static void pythonplugin_new(int argc, char* argv[]) {
      * each node needs its own application state.
      */
     pyInstance = python_new(argc, argv, shadowlib.log);
+
+    /*
+     * Add a callback to be called periodically
+     * This calls the ready function regularly, even when no events happened
+     */
+    shadowlib.createCallback(&pythonplugin_periodic_cb, NULL, 100);
 }
 
 /* shadow is freeing an existing instance of this plug-in that we previously
@@ -28,14 +48,6 @@ static void pythonplugin_free() {
      * plug-in function that implements this for both plug-in and non-plug-in modes.
      */
     python_free(pyInstance);
-}
-
-/* shadow is notifying us that some descriptors are ready to read/write */
-static void pythonplugin_ready() {
-    /* shadow wants to handle some descriptor I/O. pass this to the lower level
-     * plug-in function that implements this for both plug-in and non-plug-in modes.
-     */
-    python_ready(pyInstance);
 }
 
 /* plug-in initialization. this only happens once per plug-in,
