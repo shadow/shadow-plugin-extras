@@ -68,7 +68,8 @@ Logger_write(Logger *self, PyObject *args)
     char *msg = NULL;
     if(!PyArg_ParseTuple(args, "s", &msg))
         return NULL;
-    self->log(self->loglevel, __FUNCTION__, msg);
+    self->log(self->loglevel, __FUNCTION__, "%s", msg);
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
