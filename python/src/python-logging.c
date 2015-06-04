@@ -14,9 +14,6 @@ typedef struct {
 static void
 Logger_dealloc(Logger* self)
 {
-    // PySys_SetObject(self->std_name, self->old_std_object);
-    // if(self->std_name)
-    //     free(self->std_name);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -32,21 +29,14 @@ Logger_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Logger_init(Logger *self, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"loglevel", "std_name", "log", NULL};
+    static char *kwlist[] = {"log", NULL};
     PyObject *log_tmp = NULL;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "isO", kwlist, 
-                                      &self->loglevel, &self->std_name, &log_tmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &log_tmp))
         return -1;
 
     self->log = (ShadowLogFunc)PyCapsule_GetPointer(log_tmp, NULL);
     if(!self->log)
-        return -1;
-
-    self->old_std_object = PySys_GetObject(self->std_name);
-    if(!self->old_std_object)
-        return -1;
-    if(PySys_SetObject(self->std_name, (PyObject *)self) != 0)
         return -1;
     return 0;
 }
@@ -59,6 +49,7 @@ static PyMemberDef Logger_members[] = {
      "Backup of old std object"},
     {"loglevel", T_INT, offsetof(Logger, loglevel), 0,
      "The log level to use when logging"},
+    // {"log", T_OBJECT_EX, offsetof(Logger, log), 0, "The log function"},
     {NULL}  /* Sentinel */
 };
 
@@ -66,9 +57,33 @@ static PyObject *
 Logger_write(Logger *self, PyObject *args)
 {
     char *msg = NULL;
-    if(!PyArg_ParseTuple(args, "s", &msg))
+    int level = -1, shadow_level;
+    PyErr_SetString(PyExc_RuntimeError, "Don't call me!!!");
+    return NULL;
+
+    if(!PyArg_ParseTuple(args, "is", &level, &msg))
         return NULL;
-    self->log(self->loglevel, __FUNCTION__, "%s", msg);
+    switch(level) {
+        case 0:
+            shadow_level = SHADOW_LOG_LEVEL_ERROR;
+            break;
+        case 1:
+            shadow_level = SHADOW_LOG_LEVEL_CRITICAL;
+            break;
+        case 2:
+            shadow_level = SHADOW_LOG_LEVEL_WARNING;
+            break;
+        case 3:
+            shadow_level = SHADOW_LOG_LEVEL_INFO;
+            break;
+        case 4:
+            shadow_level = SHADOW_LOG_LEVEL_DEBUG;
+            break;
+        default:
+            PyErr_SetString(PyExc_ValueError, "Invalid log level");
+            return NULL;
+    }
+    self->log(shadow_level, __FUNCTION__, "%s", msg);
     Py_INCREF(Py_None);
     return Py_None;
 }

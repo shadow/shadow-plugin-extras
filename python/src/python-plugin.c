@@ -67,11 +67,13 @@ void __shadow_plugin_init__(ShadowFunctionTable* shadowlibFuncs) {
         shadowlib.log(SHADOW_LOG_LEVEL_CRITICAL, __FUNCTION__,
                 "error registering python plug-in state");
     }
+    fprintf(stderr, "Init called...\n");
 }
 
 /* called immediately after the plugin is unloaded. shadow unloads plugins
  * once for each worker thread.
  */
 void g_module_unload(GModule *module) {
+    fprintf(stderr, "Unload called\n");
     Py_Finalize();
 }

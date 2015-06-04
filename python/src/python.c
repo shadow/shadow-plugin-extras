@@ -130,22 +130,24 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__, "python_new called");
     /* Must be the first thing we do to get everything else started */
 #if PY_MAJOR_VERSION >= 3
-    int req_size = mbstowcs(NULL, argv[0], 0) + 1;
-    assert(req_size > 1);
-    wchar_t *argv_w0 = calloc(req_size, sizeof(wchar_t));
-    assert(argv_w0);
-    assert(mbstowcs(argv_w0, argv[0], req_size) > 0);
-    wprintf(L"Program name: %s or %ls\n", argv[0], argv_w0);
-    Py_SetProgramName(argv_w0);
+    // int req_size = mbstowcs(NULL, argv[0], 0) + 1;
+    // assert(req_size > 1);
+    // wchar_t *argv_w0 = calloc(req_size, sizeof(wchar_t));
+    // assert(argv_w0);
+    // assert(mbstowcs(argv_w0, argv[0], req_size) > 0);
+    // wprintf(L"Program name: %s or %ls\n", argv[0], argv_w0);
+    wchar_t *argv_0 = wcsdup(L"/home/javex/.shadow/bin/shadow-python3");
 #else
-    Py_SetProgramName(argv[0]);
+    char *argv_0 = strdup("/home/javex/.shadow/bin/shadow-python");
 #endif
+    assert(argv_0);
+    Py_SetProgramName(argv_0);
     Py_Initialize();
 
     /* We start a new sub interpreter, so we back the old one up to 
      * restore it later
      */
-    saved_tstate = PyThreadState_Swap(NULL);
+    saved_tstate = PyThreadState_Get();
 
     m = calloc(1, sizeof(python_data));
     assert(m);
@@ -157,12 +159,6 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     PyObject *shd_py = init_logger();
     if(!shd_py)
         PYERR();
-    PyObject *log_capsule = PyCapsule_New((void *)m->log, NULL, NULL);
-    m->stdout_logger = PyObject_CallMethod(shd_py, "Logger", "(isO)", SHADOW_LOG_LEVEL_MESSAGE, "stdout", log_capsule);
-    m->stderr_logger = PyObject_CallMethod(shd_py, "Logger", "(isO)", SHADOW_LOG_LEVEL_WARNING, "stderr", log_capsule);
-    Py_DECREF(log_capsule);
-    if(!m->stdout_logger || !m->stderr_logger)
-        PYERR();
 
     m->module = PyImport_Import(module_name);
     if(m->module == NULL)
@@ -171,13 +167,19 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     if(get_handle == NULL)
         PYERR();
 
-    args = PyTuple_New(0);
-    if(args == NULL)
+    PyObject *log_capsule = PyCapsule_New((void *)m->log, NULL, NULL);
+    args = PyTuple_Pack(1, log_capsule);
+    // args = PyTuple_Pack(1, Py_None);
+    Py_INCREF(Py_None);
+    if(args == NULL) {
+        Py_DECREF(log_capsule);
         PYERR();
+    }
 
     m->handle = PyObject_Call(get_handle, args, NULL);
     if(m->handle == NULL)
         PYERR();
+    Py_DECREF(log_capsule);
 
     m->process = PyObject_GetAttrString(m->handle, "process");
     if(m->process == NULL)
