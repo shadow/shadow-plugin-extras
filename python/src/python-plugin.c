@@ -1,4 +1,5 @@
 #include "python-plugin.h"
+#include <gmodule.h>
 /* functions that interface into shadow */
 ShadowFunctionTable shadowlib;
 
@@ -78,4 +79,11 @@ void __shadow_plugin_init__(ShadowFunctionTable* shadowlibFuncs) {
         shadowlib.log(SHADOW_LOG_LEVEL_CRITICAL, __FUNCTION__,
                 "error registering python plug-in state");
     }
+}
+
+/* called immediately after the plugin is unloaded. shadow unloads plugins
+ * once for each worker thread.
+ */
+void g_module_unload(GModule *module) {
+    Py_Finalize();
 }

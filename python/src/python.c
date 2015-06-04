@@ -256,5 +256,4 @@ void python_free(python_data *m) {
         PyThreadState_Swap(saved_tstate);
         free(m);
     }
-    Py_Finalize();
 }
