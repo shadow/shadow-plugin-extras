@@ -4,6 +4,9 @@
 
 #include "python-plugin.h"
 
+#if PY_MAJOR_VERSION >= 3
+int _PyImport_FixupExtensionObject(PyObject *mod, PyObject *name, PyObject *filename);
+#endif
 
 static PyObject *prepare_interpreter(int argc, char *argv[], python_data *m) {
     if(argc < 2) {
@@ -160,6 +163,17 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     PyObject *shd_py = init_logger();
     if(!shd_py)
         PYERR();
+#if PY_MAJOR_VERSION >= 3
+    PyObject *name = PyUnicode_FromString("shadow_python");
+    /* Remember pointer to module init function. */
+    if (_PyImport_FixupExtensionObject(shd_py, name, name) < 0) {
+        Py_DECREF(shd_py);
+        PYERR();
+    }
+    /* FixupExtension has put the module into sys.modules,
+       so we can release our own reference. */
+    Py_DECREF(shd_py);
+#endif
 
     m->module = PyImport_Import(module_name);
     if(m->module == NULL)
