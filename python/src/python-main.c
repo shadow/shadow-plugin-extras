@@ -19,12 +19,13 @@ int STOP_INTERPRETER = 0;
 
 
 void handle_sigint(int sig) {
+    fprintf(stderr, "Handling SIGINT\n");
     STOP_INTERPRETER = 1;
 }
 
 
 int main(int argc, char *argv[]) {
-    struct timespec sleep = {0, 1000};
+    struct timespec sleep = {0, 100000};
     python_data *instance = python_new(argc, argv, &_mylog);
     signal(SIGINT, handle_sigint);
     if(instance == NULL)

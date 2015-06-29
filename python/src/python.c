@@ -132,12 +132,13 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
 #if PY_MAJOR_VERSION >= 3
     // int req_size = mbstowcs(NULL, argv[0], 0) + 1;
     // assert(req_size > 1);
-    // wchar_t *argv_w0 = calloc(req_size, sizeof(wchar_t));
-    // assert(argv_w0);
-    // assert(mbstowcs(argv_w0, argv[0], req_size) > 0);
-    // wprintf(L"Program name: %s or %ls\n", argv[0], argv_w0);
+    // wchar_t *argv_0 = calloc(req_size, sizeof(wchar_t));
+    // assert(argv_0);
+    // assert(mbstowcs(argv_0, argv[0], req_size) > 0);
+    // wprintf(L"Program name: %s or %ls\n", argv[0], argv_0);
     wchar_t *argv_0 = wcsdup(L"/home/javex/.shadow/bin/shadow-python3");
 #else
+    // char *argv_0 = strdup(argv[0]);
     char *argv_0 = strdup("/home/javex/.shadow/bin/shadow-python");
 #endif
     assert(argv_0);
@@ -169,17 +170,14 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
 
     PyObject *log_capsule = PyCapsule_New((void *)m->log, NULL, NULL);
     args = PyTuple_Pack(1, log_capsule);
-    // args = PyTuple_Pack(1, Py_None);
     Py_INCREF(Py_None);
     if(args == NULL) {
-        Py_DECREF(log_capsule);
         PYERR();
     }
 
     m->handle = PyObject_Call(get_handle, args, NULL);
     if(m->handle == NULL)
         PYERR();
-    Py_DECREF(log_capsule);
 
     m->process = PyObject_GetAttrString(m->handle, "process");
     if(m->process == NULL)
@@ -214,10 +212,10 @@ int python_ready(python_data *m) {
     }
     retval = PyObject_Call(m->process, args, NULL);
     if(retval == NULL) {
-        m->log(SHADOW_LOG_LEVEL_ERROR, __FUNCTION__, "Unexpected return during process, aborting");
         PyErr_Print();
         Py_XDECREF(args);
         PyThreadState_Swap(saved_tstate);
+        m->log(SHADOW_LOG_LEVEL_ERROR, __FUNCTION__, "Unexpected return during process, aborting");
         return 1;
     }
     int retint = PyObject_IsTrue(retval);
