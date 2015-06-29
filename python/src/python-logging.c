@@ -5,25 +5,13 @@
 typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
-    char *std_name;
-    PyObject *old_std_object;
     ShadowLogFunc log;
-    int loglevel;
 } Logger;
 
 static void
 Logger_dealloc(Logger* self)
 {
     Py_TYPE(self)->tp_free((PyObject*)self);
-}
-
-static PyObject *
-Logger_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    Logger *self;
-
-    self = (Logger *)type->tp_alloc(type, 0);
-    return (PyObject *)self;
 }
 
 static int
@@ -43,13 +31,7 @@ Logger_init(Logger *self, PyObject *args, PyObject *kwds)
 
 
 static PyMemberDef Logger_members[] = {
-    {"std_name", T_STRING, offsetof(Logger, std_name), 0,
-     "Name of std object (i.e. stderr or stdout)"},
-    {"old_std_object", T_OBJECT_EX, offsetof(Logger, old_std_object), 0,
-     "Backup of old std object"},
-    {"loglevel", T_INT, offsetof(Logger, loglevel), 0,
-     "The log level to use when logging"},
-    // {"log", T_OBJECT_EX, offsetof(Logger, log), 0, "The log function"},
+    {"log", T_OBJECT_EX, offsetof(Logger, log), 0, "The log function"},
     {NULL}  /* Sentinel */
 };
 
@@ -58,8 +40,6 @@ Logger_write(Logger *self, PyObject *args)
 {
     char *msg = NULL;
     int level = -1, shadow_level;
-    PyErr_SetString(PyExc_RuntimeError, "Don't call me!!!");
-    return NULL;
 
     if(!PyArg_ParseTuple(args, "is", &level, &msg))
         return NULL;
@@ -74,7 +54,7 @@ Logger_write(Logger *self, PyObject *args)
             shadow_level = SHADOW_LOG_LEVEL_WARNING;
             break;
         case 3:
-            shadow_level = SHADOW_LOG_LEVEL_INFO;
+            shadow_level = SHADOW_LOG_LEVEL_MESSAGE;
             break;
         case 4:
             shadow_level = SHADOW_LOG_LEVEL_DEBUG;
@@ -133,7 +113,7 @@ static PyTypeObject LoggerType = {
     0,                         /* tp_dictoffset */
     (initproc)Logger_init,      /* tp_init */
     0,                         /* tp_alloc */
-    Logger_new,                 /* tp_new */
+    PyType_GenericNew,                 /* tp_new */
 };
 
 static PyMethodDef module_methods[] = {
@@ -158,7 +138,6 @@ static struct PyModuleDef moduledef = {
 
 PyObject* init_logger()
 {
-    LoggerType.tp_new = PyType_GenericNew;
     if (PyType_Ready(&LoggerType) < 0)
         return NULL;
 
