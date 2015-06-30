@@ -29,10 +29,6 @@ struct _python_data {
     /* The used sub-interpreter */
     PyThreadState *interpreter;
 
-    /* Our two logger instances */
-    PyObject *stdout_logger;
-    PyObject *stderr_logger;
-
     /* The module from which we import our functions */
     PyObject *module;
 

@@ -262,8 +262,6 @@ void python_free(python_data *m) {
         Py_XDECREF(m->process);
         Py_XDECREF(m->handle);
         Py_XDECREF(m->module);
-        Py_XDECREF(m->stdout_logger);
-        Py_XDECREF(m->stderr_logger);
 
         if(m->interpreter)
             Py_EndInterpreter(m->interpreter);
