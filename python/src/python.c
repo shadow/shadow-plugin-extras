@@ -222,7 +222,6 @@ err:
 }
 
 int python_ready(python_data *m) {
-    m->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_ready called");
     /* we need to switch to our interpreter */
     PyThreadState *saved_tstate = PyThreadState_Get();
     PyThreadState_Swap(m->interpreter);
