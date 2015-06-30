@@ -1,5 +1,8 @@
 ## python plug-in
 
+
+add_definitions(-DINSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
+
 include_directories(/home/javex/.shadow/include/python2.7)
 find_library(PYTHON python2.7 /home/javex/.shadow/lib/)
 link_directories(/home/javex/.shadow/lib/)

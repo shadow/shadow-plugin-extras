@@ -1,5 +1,7 @@
 ## python plug-in
 
+add_definitions(-DINSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")
+
 #
 # Python 3 part
 #

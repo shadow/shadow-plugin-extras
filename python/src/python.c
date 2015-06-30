@@ -4,6 +4,23 @@
 
 #include "python-plugin.h"
 
+
+/*
+ * This is actually a pretty dirty hack: The argv0 required here
+ * cannot be the argv[0] of the plugin as it is in the wrong path.
+ * Then Python will not search in the correct path for the modules.
+ * Thus, we make this a static string based on the prefix set during
+ * compilation of the plugin. Shouldn't cause too much harm but would
+ * like to see a better solution.
+ */
+#if PY_MAJOR_VERSION >= 3
+#define Lstr2(s) L ## s
+#define Lstr(s) Lstr2(s)
+#define ARGV0 Lstr(INSTALL_PREFIX) L"/bin/shadow-python3"
+#else
+#define ARGV0 INSTALL_PREFIX "/bin/shadow-python"
+#endif
+
 #if PY_MAJOR_VERSION >= 3
 int _PyImport_FixupExtensionObject(PyObject *mod, PyObject *name, PyObject *filename);
 #endif
@@ -131,20 +148,14 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     } while(0)
 
     log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__, "python_new called");
-    /* Must be the first thing we do to get everything else started */
+    /* See the comments on the definition of ARGV0 on why this is necessary */
 #if PY_MAJOR_VERSION >= 3
-    // int req_size = mbstowcs(NULL, argv[0], 0) + 1;
-    // assert(req_size > 1);
-    // wchar_t *argv_0 = calloc(req_size, sizeof(wchar_t));
-    // assert(argv_0);
-    // assert(mbstowcs(argv_0, argv[0], req_size) > 0);
-    // wprintf(L"Program name: %s or %ls\n", argv[0], argv_0);
-    wchar_t *argv_0 = wcsdup(L"/home/javex/.shadow/bin/shadow-python3");
+    wchar_t *argv_0 = wcsdup(ARGV0);
 #else
-    // char *argv_0 = strdup(argv[0]);
-    char *argv_0 = strdup("/home/javex/.shadow/bin/shadow-python");
+    char *argv_0 = strdup(ARGV0);
 #endif
     assert(argv_0);
+    /* Must be the first thing we do to get everything else started */
     Py_SetProgramName(argv_0);
     Py_Initialize();
 
