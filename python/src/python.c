@@ -3,6 +3,7 @@
  */
 
 #include "python-plugin.h"
+#include "python-global-lock.h"
 
 
 /*
@@ -147,6 +148,7 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
         goto err;                      \
     } while(0)
 
+    shadow_python_lock();
     log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__, "python_new called");
     /* See the comments on the definition of ARGV0 on why this is necessary */
 #if PY_MAJOR_VERSION >= 3
@@ -158,14 +160,6 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     /* Must be the first thing we do to get everything else started */
     Py_SetProgramName(argv_0);
     Py_Initialize();
-
-    /* This code prevents a segfault if too many interpreter instances
-     * are started. I know we have an error somewhere but I have no idea
-     * where and so we need to hack it with this.
-     */
-    PyObject *gc = PyImport_ImportModule("gc");
-    assert(gc);
-    Py_DECREF(PyObject_CallMethod(gc, "disable", NULL));
 
     /* We start a new sub interpreter, so we back the old one up to 
      * restore it later
@@ -228,18 +222,22 @@ err:
         python_free(m);
         m = NULL;
     }
+    shadow_python_unlock();
     return m;
 #undef PYERR
 }
 
 int python_ready(python_data *m) {
+    shadow_python_lock();
+
     /* we need to switch to our interpreter */
-    PyThreadState *saved_tstate = PyThreadState_Get();
-    PyThreadState_Swap(m->interpreter);
+    PyThreadState *saved_tstate = PyThreadState_Swap(m->interpreter);
+    m->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_ready called, interpreter %p, saved: %p", m->interpreter, saved_tstate);
 
     PyObject *args = PyTuple_New(0), *retval = NULL;
     if(args == NULL) {
         PyErr_Print();
+        shadow_python_unlock();
         return 1;
     }
     retval = PyObject_Call(m->process, args, NULL);
@@ -248,17 +246,22 @@ int python_ready(python_data *m) {
         Py_XDECREF(args);
         PyThreadState_Swap(saved_tstate);
         m->log(SHADOW_LOG_LEVEL_ERROR, __FUNCTION__, "Unexpected return during process, aborting");
+        shadow_python_unlock();
         return 1;
     }
     int retint = PyObject_IsTrue(retval);
     Py_XDECREF(args);
     Py_XDECREF(retval);
-    PyThreadState_Swap(saved_tstate);
+    saved_tstate = PyThreadState_Swap(saved_tstate);
+    assert(saved_tstate == m->interpreter);
+    m->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_ready finished, interpreter %p, saved: %p", m->interpreter, saved_tstate);
+    shadow_python_unlock();
     return retint;
 }
 
 void python_free(python_data *m) {
     if(m != NULL) {
+        shadow_python_lock();
         m->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_free called");
         /* we need to switch to our interpreter */
         PyThreadState *saved_tstate = PyThreadState_Get();
@@ -285,5 +288,6 @@ void python_free(python_data *m) {
             Py_EndInterpreter(m->interpreter);
         PyThreadState_Swap(saved_tstate);
         free(m);
+        shadow_python_unlock();
     }
 }

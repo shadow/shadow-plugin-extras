@@ -73,5 +73,5 @@ void __shadow_plugin_init__(ShadowFunctionTable* shadowlibFuncs) {
  * once for each worker thread.
  */
 void g_module_unload(GModule *module) {
-    Py_Finalize();
+    //Py_Finalize();
 }
