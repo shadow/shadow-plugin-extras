@@ -161,6 +161,15 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     Py_SetProgramName(argv_0);
     Py_Initialize();
 
+    /* This code prevents a segfault if too many interpreter instances
+     * are started. I know we have an error somewhere but I have no idea
+     * where and so we need to hack it with this.
+     */
+    PyObject *gc = PyImport_ImportModule("gc");
+    assert(gc);
+    Py_DECREF(PyObject_CallMethod(gc, "disable", NULL));
+
+
     /* We start a new sub interpreter, so we back the old one up to 
      * restore it later
      */
