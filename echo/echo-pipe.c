@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include "echo.h"
 
-EchoPipe* echopipe_new(ShadowLogFunc log) {
+EchoPipe* echopipe_new(EchoLogFunc log) {
 	EchoPipe* epipe = g_new0(EchoPipe, 1);
 
 	epipe->log = log;
@@ -16,7 +16,7 @@ EchoPipe* echopipe_new(ShadowLogFunc log) {
 	gint fds[2];
 	gint pipeResult = pipe(fds);
 	if(pipeResult < 0) {
-		log(SHADOW_LOG_LEVEL_WARNING, __FUNCTION__, "Error in pipe");
+		log(G_LOG_LEVEL_WARNING, __FUNCTION__, "Error in pipe");
 		return NULL;
 	}
 
@@ -26,7 +26,7 @@ EchoPipe* echopipe_new(ShadowLogFunc log) {
 	/* create an epoll so we can wait for IO events */
 	gint epolld = epoll_create(1);
 	if(epolld == -1) {
-		log(SHADOW_LOG_LEVEL_WARNING, __FUNCTION__, "Error in epoll_create");
+		log(G_LOG_LEVEL_WARNING, __FUNCTION__, "Error in epoll_create");
 		close(epipe->readfd);
 		close(epipe->writefd);
 		return NULL;
@@ -43,7 +43,7 @@ EchoPipe* echopipe_new(ShadowLogFunc log) {
 	gint resultr = epoll_ctl(epolld, EPOLL_CTL_ADD, epipe->readfd, &evr);
 	gint resultw = epoll_ctl(epolld, EPOLL_CTL_ADD, epipe->writefd, &evw);
 	if(resultr == -1 || resultw == -1) {
-		log(SHADOW_LOG_LEVEL_WARNING, __FUNCTION__, "Error in epoll_ctl");
+		log(G_LOG_LEVEL_WARNING, __FUNCTION__, "Error in epoll_ctl");
 		close(epolld);
 		close(epipe->readfd);
 		close(epipe->writefd);
@@ -80,7 +80,7 @@ void echopipe_ready(EchoPipe* epipe) {
 
 	int nfds = epoll_wait(epipe->epolld, events, MAX_EVENTS, 0);
 	if(nfds == -1) {
-		epipe->log(SHADOW_LOG_LEVEL_WARNING, __FUNCTION__, "error in epoll_wait");
+		epipe->log(G_LOG_LEVEL_WARNING, __FUNCTION__, "error in epoll_wait");
 	}
 
 	gint ioResult = 0;
@@ -91,17 +91,17 @@ void echopipe_ready(EchoPipe* epipe) {
 		if(!(epipe->didRead) && (events[i].events & EPOLLIN)) {
 			ioResult = read(socketd, epipe->outputBuffer, BUFFERSIZE);
 			if(ioResult < 0) {
-				epipe->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "read returned < 0");
+				epipe->log(G_LOG_LEVEL_DEBUG, __FUNCTION__, "read returned < 0");
 			}
 
 			if(memcmp(epipe->inputBuffer, epipe->outputBuffer, BUFFERSIZE)) {
-				epipe->log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__, "inconsistent echo received!");
+				epipe->log(G_LOG_LEVEL_MESSAGE, __FUNCTION__, "inconsistent echo received!");
 			} else {
-				epipe->log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__, "consistent echo received!");
+				epipe->log(G_LOG_LEVEL_MESSAGE, __FUNCTION__, "consistent echo received!");
 			}
 
 			if(epoll_ctl(epipe->epolld, EPOLL_CTL_DEL, socketd, NULL) == -1) {
-				epipe->log(SHADOW_LOG_LEVEL_WARNING, __FUNCTION__, "Error in epoll_ctl");
+				epipe->log(G_LOG_LEVEL_WARNING, __FUNCTION__, "Error in epoll_ctl");
 			}
 
 			close(socketd);
@@ -112,11 +112,11 @@ void echopipe_ready(EchoPipe* epipe) {
 			_echopipe_fillCharBuffer(epipe->inputBuffer, BUFFERSIZE);
 			ioResult = write(socketd, (gconstpointer) epipe->inputBuffer, BUFFERSIZE);
 			if(ioResult < 0) {
-				epipe->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "write returned < 0");
+				epipe->log(G_LOG_LEVEL_DEBUG, __FUNCTION__, "write returned < 0");
 			}
 
 			if(epoll_ctl(epipe->epolld, EPOLL_CTL_DEL, socketd, NULL) == -1) {
-				epipe->log(SHADOW_LOG_LEVEL_WARNING, __FUNCTION__, "Error in epoll_ctl");
+				epipe->log(G_LOG_LEVEL_WARNING, __FUNCTION__, "Error in epoll_ctl");
 			}
 
 			close(socketd);

@@ -26,7 +26,7 @@
           <data key="d6">0</data>
         </node>
         <node id="poi-2">
-          <data key="d0">0.5</data>
+          <data key="d0">0.25</data>
           <data key="d1">0.0.0.0</data>
           <data key="d2">CA</data>
           <data key="d3">1024</data>
@@ -59,7 +59,7 @@
 
     <!-- the length of our experiment in seconds -->
 
-    <kill time="300" />
+    <kill time="600" />
 
     <!-- our nodes and the applications they run -->
 

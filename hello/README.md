@@ -3,9 +3,8 @@
 
 This plug-in provides a quick example of how to interface with Shadow.
 The most important features of the code that enable this are:
- + completely non-blocking I/O and non-blocking system calls
- + polling I/O events using the `epoll` interface (see `$ man epoll`)
- + no process forking or thread creation
+ + no process forking
+ + no busy loops
 
 copyright holders
 -----------------
@@ -20,10 +19,7 @@ No deviations from LICENSE.
 last known working version
 --------------------------
 
-This plug-in was last tested and known to work with 
-Shadow v1.9.0
-commit 2fb316ad84801434c4b5e0536740807774c732fd
-Date:   Tue Mar 11 18:20:36 2014 -0400
+This plug-in was last tested and known to work with `Shadow v1.11.1-11-gf349fe5 2016-03-11`
 
 usage
 -----
@@ -33,6 +29,11 @@ Please see the `example.xml`, which may be run in Shadow
 ```bash
 shadow example.xml
 ```
+
+After running the above, check the following directories for process output:
+
+  + `shadow.data/hosts/helloclient/stdout-hello-1000.log`
+  + `shadow.data/hosts/helloserver/stdout-hello-1000.log`
 
 A binary version of the code is available for usage outside of Shadow.
 Run the program `hello` with no arguments to start the server:
