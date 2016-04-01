@@ -20,6 +20,7 @@
 #include <glib.h>
 #include <pcap.h> 
 #include <time.h>
+#include <netinet/tcp.h>
 
 #define MTU 2000 // Size of the buffer for recv() function (in bytes)
 
