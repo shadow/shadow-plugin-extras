@@ -389,12 +389,12 @@ gboolean pcap_StartClient(Pcap_Replay* pcapReplay) {
 
 	/* Set TCP_NODELAY option to avoid Nagle algo */
 	int optval = 1;
-	if(setsockopt(pcapReplay->client.sd, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof optval) == -1){
+	setsockopt(pcapReplay->server.sd, IPPROTO_TCP, TCP_NODELAY, (char *) &optval, sizeof(optval));
+	if(pcapReplay->client.sd == -1){
 		pcapReplay->slogf(G_LOG_LEVEL_ERROR, __FUNCTION__,
 					"Unable to set options to the socket !");
 		return FALSE;
 	}
-
 	/* get the server ip address */
 	if(g_ascii_strncasecmp(pcapReplay->serverHostName->str, "localhost", 9) == 0) {
 		pcapReplay->serverIP = htonl(INADDR_LOOPBACK);
@@ -456,7 +456,8 @@ gboolean pcap_StartClientTor(Pcap_Replay* pcapReplay) {
 
 	/* Set TCP_NODELAY option to avoid Nagle algo */
 	int optval = 1;
-	if(setsockopt(pcapReplay->client.sd, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof optval) == -1){
+	setsockopt(pcapReplay->client.sd, IPPROTO_TCP, TCP_NODELAY, (char *) &optval, sizeof(optval));
+	if(pcapReplay->server.sd == -1){
 		pcapReplay->slogf(G_LOG_LEVEL_ERROR, __FUNCTION__,
 					"Unable to set options to the socket !");
 		return FALSE;
@@ -517,11 +518,18 @@ gboolean pcap_StartServer(Pcap_Replay* pcapReplay) {
 
 	/* Set TCP_NODELAY option to avoid Nagle algo */
 	int optval = 1;
-	if(setsockopt(pcapReplay->server.sd, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof optval) == -1){
+	setsockopt(pcapReplay->server.sd, IPPROTO_TCP, TCP_NODELAY, (char *) &optval, sizeof(optval));
+	if(pcapReplay->server.sd == -1){
 		pcapReplay->slogf(G_LOG_LEVEL_ERROR, __FUNCTION__,
 					"Unable to set options to the socket !");
 		return FALSE;
 	}
+
+	// if(setsockopt(pcapReplay->server.sd, IPPROTO_TCP, TCP_NODELAY, (char *) &optval, sizeof(optval)) == -1){
+		// pcapReplay->slogf(G_LOG_LEVEL_ERROR, __FUNCTION__,
+		// 			"Unable to set options to the socket !");
+		// return FALSE;
+	// }
 
 	/* Setup the socket address info, client has outgoing connection to server */
 	struct sockaddr_in bindAddress;
@@ -878,7 +886,7 @@ gboolean get_next_packet(Pcap_Replay* pcapReplay) {
 		else {
 			if(pcapReplay->server_IP_in_pcap.s_addr == ip->ip_src.s_addr) {
 				if(pcapReplay->client_IP_in_pcap.s_addr == ip->ip_dst.s_addr) {
-					if((ntohs(tcp->th_dport) == pcapReplay->client_port_in_pcap)) {
+					//if((ntohs(tcp->th_dport) == pcapReplay->client_port_in_pcap)) {
 						pcapReplay->nextPacket = g_new0(Custom_Packet_t, 1);
 						pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__, "Found at least one matching packet in next_packet");
 						exists = TRUE;
@@ -887,7 +895,7 @@ gboolean get_next_packet(Pcap_Replay* pcapReplay) {
 						pcapReplay->nextPacket->payload_size = size_payload;
 						pcapReplay->nextPacket->payload = payload;
 						break;
-					}
+					//}
 				}
 			}		
 		}
