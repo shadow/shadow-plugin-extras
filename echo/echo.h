@@ -8,7 +8,6 @@
 #define SHD_ECHO_H_
 
 #include <glib.h>
-#include <shd-library.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -44,6 +43,8 @@
  *   NULL on success, or a string describing the initialization error.
  */
 
+typedef void (*EchoLogFunc)(GLogLevelFlags level, const char* functionName, const char* format, ...);
+
 /**
  * Protocol modes this echo module supports.
  */
@@ -56,7 +57,7 @@ enum EchoProtocol {
  */
 typedef struct _EchoClient EchoClient;
 struct _EchoClient {
-	ShadowLogFunc log;
+	EchoLogFunc log;
 	in_addr_t serverIP;
 	gint epolld;
 	gint socketd;
@@ -73,7 +74,7 @@ struct _EchoClient {
  */
 typedef struct _EchoServer EchoServer;
 struct _EchoServer {
-	ShadowLogFunc log;
+	EchoLogFunc log;
 	gint epolld;
 	gint listend;
 	gint socketd;
@@ -88,7 +89,7 @@ struct _EchoServer {
  */
 typedef struct _EchoTCP EchoTCP;
 struct _EchoTCP {
-	ShadowLogFunc log;
+	EchoLogFunc log;
 	EchoClient* client;
 	EchoServer* server;
 };
@@ -98,7 +99,7 @@ struct _EchoTCP {
  */
 typedef struct _EchoUDP EchoUDP;
 struct _EchoUDP {
-	ShadowLogFunc log;
+	EchoLogFunc log;
 	EchoClient* client;
 	EchoServer* server;
 };
@@ -108,7 +109,7 @@ struct _EchoUDP {
  */
 typedef struct _EchoPipe EchoPipe;
 struct _EchoPipe {
-	ShadowLogFunc log;
+	EchoLogFunc log;
 	gint writefd;
 	gchar inputBuffer[BUFFERSIZE];
 	gboolean didWrite;
@@ -123,7 +124,6 @@ struct _EchoPipe {
  */
 typedef struct _Echo Echo;
 struct _Echo {
-	ShadowFunctionTable shadowlibFuncs;
 	enum EchoProtocol protocol;
 	EchoTCP* etcp;
 	EchoUDP* eudp;
@@ -134,15 +134,15 @@ void echoplugin_new(int argc, char* argv[]);
 void echoplugin_free();
 void echoplugin_ready();
 
-EchoTCP* echotcp_new(ShadowLogFunc log, int argc, char* argv[]);
+EchoTCP* echotcp_new(EchoLogFunc log, int argc, char* argv[]);
 void echotcp_free(EchoTCP* etcp);
 void echotcp_ready(EchoTCP* etcp);
 
-EchoUDP* echoudp_new(ShadowLogFunc log, int argc, char* argv[]);
+EchoUDP* echoudp_new(EchoLogFunc log, int argc, char* argv[]);
 void echoudp_free(EchoUDP* eudp);
 void echoudp_ready(EchoUDP* eudp);
 
-EchoPipe* echopipe_new(ShadowLogFunc log);
+EchoPipe* echopipe_new(EchoLogFunc log);
 void echopipe_free(EchoPipe* epipe);
 void echopipe_ready(EchoPipe* epipe);
 
