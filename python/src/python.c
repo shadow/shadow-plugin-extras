@@ -33,7 +33,7 @@ static PyObject *prepare_interpreter(int argc, char *argv[], python_data *m) {
     }
 
     /* Create sub-interpreter */
-    m->log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__, "starting new interpreter");
+    _py_log(G_LOG_LEVEL_MESSAGE, __FUNCTION__, "starting new interpreter");
     m->interpreter = Py_NewInterpreter();
     if(!m->interpreter)
         return NULL;
@@ -135,7 +135,7 @@ static PyObject *prepare_interpreter(int argc, char *argv[], python_data *m) {
 }
 
 
-python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
+python_data *python_new(int argc, char *argv[]) {
     PyObject *get_handle = NULL, *args = NULL, *module_name;
     python_data* m = NULL;
     PyThreadState *saved_tstate;
@@ -149,7 +149,7 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     } while(0)
 
     shadow_python_lock();
-    log(SHADOW_LOG_LEVEL_MESSAGE, __FUNCTION__, "python_new called");
+    _py_log(G_LOG_LEVEL_MESSAGE, __FUNCTION__, "python_new called");
     /* See the comments on the definition of ARGV0 on why this is necessary */
 #if PY_MAJOR_VERSION >= 3
     wchar_t *argv_0 = wcsdup(ARGV0);
@@ -177,7 +177,6 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
 
     m = calloc(1, sizeof(python_data));
     assert(m);
-    m->log = log;
 
     if(!(module_name = prepare_interpreter(argc, argv, m)))
          PYERR();
@@ -204,8 +203,7 @@ python_data *python_new(int argc, char *argv[], ShadowLogFunc log) {
     if(get_handle == NULL)
         PYERR();
 
-    PyObject *log_capsule = PyCapsule_New((void *)m->log, NULL, NULL);
-    args = PyTuple_Pack(1, log_capsule);
+    args = PyTuple_New(0);
     Py_INCREF(Py_None);
     if(args == NULL) {
         PYERR();
@@ -227,11 +225,11 @@ err:
     Py_XDECREF(args);
     Py_XDECREF(module_name);
     PyThreadState_Swap(saved_tstate);
+    shadow_python_unlock();
     if(error) {
         python_free(m);
         m = NULL;
     }
-    shadow_python_unlock();
     return m;
 #undef PYERR
 }
@@ -241,7 +239,7 @@ int python_ready(python_data *m) {
 
     /* we need to switch to our interpreter */
     PyThreadState *saved_tstate = PyThreadState_Swap(m->interpreter);
-    m->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_ready called, interpreter %p, saved: %p", m->interpreter, saved_tstate);
+    _py_log(G_LOG_LEVEL_DEBUG, __FUNCTION__, "python_ready called, interpreter %p, saved: %p", m->interpreter, saved_tstate);
 
     PyObject *args = PyTuple_New(0), *retval = NULL;
     if(args == NULL) {
@@ -254,7 +252,7 @@ int python_ready(python_data *m) {
         PyErr_Print();
         Py_XDECREF(args);
         PyThreadState_Swap(saved_tstate);
-        m->log(SHADOW_LOG_LEVEL_ERROR, __FUNCTION__, "Unexpected return during process, aborting");
+        _py_log(G_LOG_LEVEL_ERROR, __FUNCTION__, "Unexpected return during process, aborting");
         shadow_python_unlock();
         return 1;
     }
@@ -263,7 +261,7 @@ int python_ready(python_data *m) {
     Py_XDECREF(retval);
     saved_tstate = PyThreadState_Swap(saved_tstate);
     assert(saved_tstate == m->interpreter);
-    m->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_ready finished, interpreter %p, saved: %p", m->interpreter, saved_tstate);
+    _py_log(G_LOG_LEVEL_DEBUG, __FUNCTION__, "python_ready finished, interpreter %p, saved: %p", m->interpreter, saved_tstate);
     shadow_python_unlock();
     return retint;
 }
@@ -271,7 +269,7 @@ int python_ready(python_data *m) {
 void python_free(python_data *m) {
     if(m != NULL) {
         shadow_python_lock();
-        m->log(SHADOW_LOG_LEVEL_DEBUG, __FUNCTION__, "python_free called");
+        _py_log(G_LOG_LEVEL_DEBUG, __FUNCTION__, "python_free called");
         /* we need to switch to our interpreter */
         PyThreadState *saved_tstate = PyThreadState_Get();
         if(m->interpreter)

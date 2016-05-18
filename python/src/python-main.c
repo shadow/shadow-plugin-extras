@@ -6,15 +6,6 @@
 #include <signal.h>
 #include <time.h>
 
- static void _mylog(ShadowLogLevel level, const char* functionName, const char* format, ...) {
-    va_list variableArguments;
-    fprintf(stderr, "Shadow-Log: ");
-    va_start(variableArguments, format);
-    vfprintf(stderr, format, variableArguments);
-    va_end(variableArguments);
-    fprintf(stderr, "%s", "\n");
-}
-
 int STOP_INTERPRETER = 0;
 
 
@@ -26,7 +17,7 @@ void handle_sigint(int sig) {
 
 int main(int argc, char *argv[]) {
     struct timespec sleep = {0, 100000};
-    python_data *instance = python_new(argc, argv, &_mylog);
+    python_data *instance = python_new(argc, argv);
     signal(SIGINT, handle_sigint);
     if(instance == NULL)
         exit(1);

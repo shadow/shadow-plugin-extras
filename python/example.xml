@@ -36,7 +36,7 @@
 
     <!-- the plug-ins we will be using -->
 
-    <plugin id="hello" path="libshadow-plugin-hello.so" />
+    <plugin id="python" path="libshadow-plugin-python.so" />
 
     <!-- the length of our experiment in seconds -->
 
@@ -44,11 +44,11 @@
 
     <!-- our nodes and the applications they run -->
 
-    <node id="helloserver" geocodehint="US">
-        <application plugin="hello" time="10" arguments="" />
+    <node id="pythonserver" geocodehint="US">
+        <application plugin="python" time="10" arguments="client" />
     </node>
-    <node id="helloclient" quantity="1">
-        <application plugin="hello" time="20" arguments="helloserver" />
+    <node id="pythonclient" quantity="1">
+        <application plugin="python" time="20" arguments="server" />
     </node>
 
 </shadow>

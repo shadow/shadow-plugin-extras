@@ -2,8 +2,8 @@
  * See LICENSE for licensing information
  */
 
-#ifndef MIXMINOION_H_
-#define MIXMINOION_H_
+#ifndef SHADOWPYTHON_H_
+#define SHADOWPYTHON_H_
 
 /* Needs to be first */
 #include <Python.h>
@@ -18,14 +18,9 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <errno.h>
-
-#include <shd-library.h>
+#include <glib.h>
 
 struct _python_data {
-    /* the function we use to log messages
-     * needs level, functionname, and format */
-    ShadowLogFunc log;
-
     /* The used sub-interpreter */
     PyThreadState *interpreter;
 
@@ -39,9 +34,10 @@ struct _python_data {
 typedef struct _python_data python_data;
 
 int main(int, char **);
-python_data *python_new(int, char **, ShadowLogFunc);
+python_data *python_new(int, char **);
 int python_ready(python_data *);
 void python_free(python_data *);
 PyObject* init_logger();
+void _py_log(GLogLevelFlags, const gchar*, const gchar*, ...);
 
-#endif /* MIXMINOION_H_ */
+#endif /* SHADOWPYTHON_H_ */

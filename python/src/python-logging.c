@@ -1,11 +1,11 @@
 #include <Python.h>
 #include <structmember.h>
-#include <shd-library.h>
+#include <glib.h>
+
 
 typedef struct {
     PyObject_HEAD
     /* Type-specific fields go here. */
-    ShadowLogFunc log;
 } Logger;
 
 static void
@@ -14,26 +14,17 @@ Logger_dealloc(Logger* self)
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static int
-Logger_init(Logger *self, PyObject *args, PyObject *kwds)
-{
-    static char *kwlist[] = {"log", NULL};
-    PyObject *log_tmp = NULL;
-
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &log_tmp))
-        return -1;
-
-    self->log = (ShadowLogFunc)PyCapsule_GetPointer(log_tmp, NULL);
-    if(!self->log)
-        return -1;
-    return 0;
-}
-
 
 static PyMemberDef Logger_members[] = {
-    {"log", T_OBJECT_EX, offsetof(Logger, log), 0, "The log function"},
     {NULL}  /* Sentinel */
 };
+
+void _py_log(GLogLevelFlags level, const gchar* functionName, const gchar* format, ...) {
+    va_list variableArguments;
+    va_start(variableArguments, format);
+    g_logv(G_LOG_DOMAIN, level, format, variableArguments);
+    va_end(variableArguments);
+}
 
 static PyObject *
 Logger_write(Logger *self, PyObject *args)
@@ -45,25 +36,26 @@ Logger_write(Logger *self, PyObject *args)
         return NULL;
     switch(level) {
         case 0:
-            shadow_level = SHADOW_LOG_LEVEL_ERROR;
+            shadow_level = G_LOG_LEVEL_ERROR;
             break;
         case 1:
-            shadow_level = SHADOW_LOG_LEVEL_CRITICAL;
+            shadow_level = G_LOG_LEVEL_CRITICAL;
             break;
         case 2:
-            shadow_level = SHADOW_LOG_LEVEL_WARNING;
+            shadow_level = G_LOG_LEVEL_WARNING;
             break;
         case 3:
-            shadow_level = SHADOW_LOG_LEVEL_MESSAGE;
+            shadow_level = G_LOG_LEVEL_MESSAGE;
             break;
         case 4:
-            shadow_level = SHADOW_LOG_LEVEL_DEBUG;
+            shadow_level = G_LOG_LEVEL_DEBUG;
             break;
         default:
             PyErr_SetString(PyExc_ValueError, "Invalid log level");
             return NULL;
     }
-    self->log(shadow_level, __FUNCTION__, "%s", msg);
+
+    _py_log(level, __FUNCTION__, msg);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -111,7 +103,7 @@ static PyTypeObject LoggerType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Logger_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     PyType_GenericNew,                 /* tp_new */
 };
