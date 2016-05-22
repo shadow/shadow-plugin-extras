@@ -2,23 +2,6 @@
 #include <structmember.h>
 #include <glib.h>
 
-
-typedef struct {
-    PyObject_HEAD
-    /* Type-specific fields go here. */
-} Logger;
-
-static void
-Logger_dealloc(Logger* self)
-{
-    Py_TYPE(self)->tp_free((PyObject*)self);
-}
-
-
-static PyMemberDef Logger_members[] = {
-    {NULL}  /* Sentinel */
-};
-
 void _py_log(GLogLevelFlags level, const gchar* functionName, const gchar* format, ...) {
     va_list variableArguments;
     va_start(variableArguments, format);
@@ -26,8 +9,17 @@ void _py_log(GLogLevelFlags level, const gchar* functionName, const gchar* forma
     va_end(variableArguments);
 }
 
+typedef enum {
+    PY_LOG_LEVEL_CRITICAL = 50,
+    PY_LOG_LEVEL_ERROR = 40,
+    PY_LOG_LEVEL_WARNING = 30,
+    PY_LOG_LEVEL_INFO = 20,
+    PY_LOG_LEVEL_DEBUG = 10,
+    PY_LOG_LEVEL_NOTSET = 0
+} PyLogLevel;
+
 static PyObject *
-Logger_write(Logger *self, PyObject *args)
+shadow_python_write(PyObject *self, PyObject *args)
 {
     char *msg = NULL;
     int level = -1, shadow_level;
@@ -35,80 +27,33 @@ Logger_write(Logger *self, PyObject *args)
     if(!PyArg_ParseTuple(args, "is", &level, &msg))
         return NULL;
     switch(level) {
-        case 0:
+        case PY_LOG_LEVEL_CRITICAL:
             shadow_level = G_LOG_LEVEL_ERROR;
             break;
-        case 1:
+        case PY_LOG_LEVEL_ERROR:
             shadow_level = G_LOG_LEVEL_CRITICAL;
             break;
-        case 2:
+        case PY_LOG_LEVEL_WARNING:
             shadow_level = G_LOG_LEVEL_WARNING;
             break;
-        case 3:
-            shadow_level = G_LOG_LEVEL_MESSAGE;
+        case PY_LOG_LEVEL_INFO:
+            shadow_level = G_LOG_LEVEL_INFO;
             break;
-        case 4:
+        case PY_LOG_LEVEL_DEBUG:
+        case PY_LOG_LEVEL_NOTSET:
             shadow_level = G_LOG_LEVEL_DEBUG;
             break;
         default:
             PyErr_SetString(PyExc_ValueError, "Invalid log level");
             return NULL;
     }
-
-    _py_log(level, __FUNCTION__, msg);
+    _py_log(shadow_level, __FUNCTION__, "%s", msg);
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyMethodDef Logger_methods[] = {
-    {"write", (PyCFunction)Logger_write, METH_VARARGS,
-     "Log a message"
-    },
-    {NULL}  /* Sentinel */
-};
-
-static PyTypeObject LoggerType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    "shadow_python.Logger",             /*tp_name*/
-    sizeof(Logger), /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Logger_dealloc,/*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    "Logger objects",           /* tp_doc */
-    0,                     /* tp_traverse */
-    0,                     /* tp_clear */
-    0,                     /* tp_richcompare */
-    0,                     /* tp_weaklistoffset */
-    0,                     /* tp_iter */
-    0,                     /* tp_iternext */
-    Logger_methods,             /* tp_methods */
-    Logger_members,             /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,      /* tp_init */
-    0,                         /* tp_alloc */
-    PyType_GenericNew,                 /* tp_new */
-};
-
 static PyMethodDef module_methods[] = {
+    {"write", shadow_python_write, METH_VARARGS, "Log a line via glib"},
     {NULL}  /* Sentinel */
 };
 
@@ -120,7 +65,7 @@ static struct PyModuleDef moduledef = {
         "shadow_python",
         NULL,
         -1,
-        NULL,
+        module_methods,
         NULL,
         NULL,
         NULL,
@@ -130,20 +75,12 @@ static struct PyModuleDef moduledef = {
 
 PyObject* init_logger()
 {
-    if (PyType_Ready(&LoggerType) < 0)
-        return NULL;
-
 #if PY_MAJOR_VERSION >= 3
     PyObject *module = PyModule_Create(&moduledef);
 #else
-    PyObject *module = Py_InitModule3("shadow_python", module_methods, "foo");
+    PyObject *module = Py_InitModule("shadow_python", module_methods);
 #endif
     if(!module)
         return NULL;
-
-    Py_INCREF(&LoggerType);
-    if(PyModule_AddObject(module, "Logger", (PyObject *)&LoggerType) != 0)
-        return NULL;
-
     return module;
 }

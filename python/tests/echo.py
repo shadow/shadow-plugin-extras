@@ -246,20 +246,12 @@ class LogHandler(logging.Handler):
     def __init__(self, level=logging.NOTSET):
         # This is necessary because shadow handles the levels, not us
         log.setLevel(logging.DEBUG)
-        import shadow_python
-        self._logger = shadow_python.Logger()
         logging.Handler.__init__(self, level)
 
     def emit(self, record):
-        severity_map = {
-            logging.CRITICAL: 0,
-            logging.ERROR: 1,
-            logging.WARNING: 2,
-            logging.INFO: 3,
-            logging.DEBUG: 4,
-        }
-        return self._logger.write(
-            severity_map[record.levelno], record.msg)
+        import shadow_python
+        msg = self.format(record)
+        return shadow_python.write(record.levelno, msg)
 
     def flush(self):
         pass
