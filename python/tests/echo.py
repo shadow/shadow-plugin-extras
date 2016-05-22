@@ -26,7 +26,7 @@ class EPollMaster(dict):
         }
         dict.__init__(self)
 
-    def process(self, timeout):
+    def process(self, timeout=0):
         try:
             events = self.epoll.poll(timeout)
         except IOError as e:
@@ -255,19 +255,6 @@ class LogHandler(logging.Handler):
 
     def flush(self):
         pass
-
-
-class TestClass(object):
-
-    def __init__(self):
-        self._done = False
-
-    def process(self, timeout=0):
-        self.finish()
-        return self._done
-
-    def finish(self):
-        self._done = True
 
 
 def get_server(args):
