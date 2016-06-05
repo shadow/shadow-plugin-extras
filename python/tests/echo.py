@@ -6,6 +6,7 @@ import socket
 import argparse
 import string
 import random
+import sys
 
 
 log = logging.getLogger(__name__)
@@ -241,22 +242,6 @@ class Client(BaseConnection):
         return want_read, want_write, self._open
 
 
-class LogHandler(logging.Handler):
-
-    def __init__(self, level=logging.NOTSET):
-        # This is necessary because shadow handles the levels, not us
-        log.setLevel(logging.DEBUG)
-        logging.Handler.__init__(self, level)
-
-    def emit(self, record):
-        import shadow_python
-        msg = self.format(record)
-        return shadow_python.write(record.levelno, msg)
-
-    def flush(self):
-        pass
-
-
 def get_server(args):
     master = EPollMaster()
     Server(args.ip, args.port, master)
@@ -269,12 +254,11 @@ def get_client(args):
     return master
 
 
-def get_handle(shadow_logging=True):
-    if shadow_logging:
-        handler = LogHandler()
-        log.addHandler(handler)
-        log.propagate = False
-
+def main():
+    logging.basicConfig(
+        level=logging.DEBUG,
+        stream=sys.stderr,
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', '-p', default=1337, type=int)
     subparsers = parser.add_subparsers()
@@ -291,20 +275,14 @@ def get_handle(shadow_logging=True):
     server_parser.set_defaults(func=get_server)
 
     args = parser.parse_args()
-    return args.func(args)
-
-
-if __name__ == '__main__':
-    import sys
-    logging.basicConfig(
-        level=logging.DEBUG,
-        stream=sys.stderr,
-    )
-    instance = get_handle(shadow_logging=False)
-    log.info('Started module in standalone mode')
+    instance = args.func(args)
     try:
         while True:
             if instance.process(10):
                 break
     finally:
         instance.finish()
+
+
+if __name__ == '__main__':
+    main()

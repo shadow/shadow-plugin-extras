@@ -37,7 +37,7 @@
     <!-- the plug-ins we will be using -->
 
     <plugin id="python2" path="libshadow-plugin-python.so" />
-    <plugin id="python3" path="libshadow-plugin-python.so" />
+    <plugin id="python3" path="libshadow-plugin-python3.so" />
 
     <!-- the length of our experiment in seconds -->
 
