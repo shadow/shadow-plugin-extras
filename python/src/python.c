@@ -52,11 +52,12 @@ int main(int argc, char *argv[]) {
 #ifdef DEBUG
     fprintf(stderr, "shutting down interpreter\n");
 #endif
+    PyThreadState_Swap(shd_py_interpreter);
     Py_EndInterpreter(shd_py_interpreter);
     shd_py_interpreter = NULL;
     PyThreadState_Swap(old);
     // this should be enabled when we figure out what's crashing us here
-    //Py_Finalize();
+    Py_Finalize();
     return ret;
 #undef PYERR
 }

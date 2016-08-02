@@ -14,7 +14,7 @@ install(TARGETS shadow-python3-global-lock DESTINATION lib)
 
 ## interposer to handle calls to Python functions we want to control
 add_library(shadow-python3-interpose SHARED ../src/python-interposer.c)
-target_link_libraries(shadow-python3-interpose ${GLIB_LIBRARIES})
+target_link_libraries(shadow-python3-interpose ${PYTHON3} ${GLIB_LIBRARIES})
 install(TARGETS shadow-python3-interpose DESTINATION lib)
 
 

@@ -14,7 +14,7 @@ install(TARGETS shadow-python-global-lock DESTINATION lib)
 
 ## interposer to handle calls to Python functions we want to control
 add_library(shadow-python-interpose SHARED src/python-interposer.c)
-target_link_libraries(shadow-python-interpose ${GLIB_LIBRARIES})
+target_link_libraries(shadow-python-interpose ${PYTHON} ${GLIB_LIBRARIES})
 install(TARGETS shadow-python-interpose DESTINATION lib)
 
 add_definitions(-DINSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}")

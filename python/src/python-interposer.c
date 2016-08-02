@@ -13,16 +13,22 @@ PyThreadState *Py_NewInterpreter() {
     fprintf(stderr, "Py_NewInterpreter called with %d sub-interpreters already present\n", interpreter_count);
 #endif
     interpreter_count++;
-    orig_Py_NewInterpreter_type orig_Py_NewInterpreter;
-    orig_Py_NewInterpreter = (orig_Py_NewInterpreter_type)dlsym(RTLD_NEXT,"Py_NewInterpreter");
+    orig_Py_NewInterpreter_type orig_Py_NewInterpreter = (orig_Py_NewInterpreter_type)dlsym(RTLD_NEXT,"Py_NewInterpreter");
+    if(orig_Py_NewInterpreter == NULL) {
+        fprintf(stderr, "Error loading from SO %s\n", dlerror());
+        exit(1);
+    }
     return orig_Py_NewInterpreter();
 }
 
 
 void Py_EndInterpreter(PyThreadState *tstate) {
     interpreter_count--;
-    orig_Py_EndInterpreter_type orig_Py_EndInterpreter;
-    orig_Py_EndInterpreter = (orig_Py_EndInterpreter_type)dlsym(RTLD_NEXT,"Py_EndInterpreter");
+    orig_Py_EndInterpreter_type orig_Py_EndInterpreter = (orig_Py_EndInterpreter_type)dlsym(RTLD_NEXT,"Py_EndInterpreter");
+    if(orig_Py_EndInterpreter == NULL) {
+        fprintf(stderr, "Error loading from SO: %s\n", dlerror());
+        exit(1);
+    }
 #ifdef DEBUG
     fprintf(stderr, "Py_EndInterpreter called with %d sub-interpreters remaining\n", interpreter_count);
 #endif
@@ -32,8 +38,11 @@ void Py_EndInterpreter(PyThreadState *tstate) {
 
 
 void Py_Finalize() {
-    orig_Py_Finalize_type orig_Py_Finalize;
-    orig_Py_Finalize = (orig_Py_Finalize_type)dlsym(RTLD_NEXT,"Py_Finalize");
+    orig_Py_Finalize_type orig_Py_Finalize = (orig_Py_Finalize_type)dlsym(RTLD_NEXT,"Py_Finalize");
+    if(orig_Py_Finalize == NULL) {
+        fprintf(stderr, "Error loading from SO: %s\n", dlerror());
+        exit(1);
+    }
 #ifdef DEBUG
     fprintf(stderr, "Py_Finalize called with %d sub-interpreters\n", interpreter_count);
 #endif
