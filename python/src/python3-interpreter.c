@@ -2,6 +2,7 @@
 
 #include "Python.h"
 #include <locale.h>
+#include "python-interpreter.h"
 
 #ifdef __FreeBSD__
 #include <floatingpoint.h>
@@ -26,7 +27,6 @@ python_main(int argc, char **argv)
 #ifdef __FreeBSD__
     fp_except_t m;
 #endif
-
     argv_copy = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
     argv_copy2 = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
     if (!argv_copy || !argv_copy2) {

@@ -1,9 +1,12 @@
 /*
  * See LICENSE for licensing information
  */
-
-#include "python-plugin.h"
+/* Needs to be first */
+#include <Python.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "python-global-lock.h"
+#include "python-interpreter.h"
 
 
 /*
@@ -47,7 +50,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     PyThreadState *old = PyThreadState_Swap(shd_py_interpreter);
-
     ret = python_main(argc, argv);
 #ifdef DEBUG
     fprintf(stderr, "shutting down interpreter\n");
@@ -56,7 +58,6 @@ int main(int argc, char *argv[]) {
     Py_EndInterpreter(shd_py_interpreter);
     shd_py_interpreter = NULL;
     PyThreadState_Swap(old);
-    // this should be enabled when we figure out what's crashing us here
     Py_Finalize();
     return ret;
 #undef PYERR

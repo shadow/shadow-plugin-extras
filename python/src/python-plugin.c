@@ -1,4 +1,4 @@
-#include "python-plugin.h"
+#include <Python.h>
 #include "python-global-lock.h"
 
 extern PyThreadState *shd_py_interpreter;
