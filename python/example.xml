@@ -37,7 +37,6 @@
     <!-- the plug-ins we will be using -->
 
     <plugin id="python2" path="libshadow-plugin-python.so" />
-    <plugin id="python3" path="libshadow-plugin-python3.so" />
 
     <!-- the length of our experiment in seconds -->
 
@@ -50,13 +49,6 @@
     </node>
     <node id="python2client" quantity="1">
         <application plugin="python2" time="20" arguments="tests/echo.py client python2server" />
-    </node>
-
-    <node id="python3server" geocodehint="US">
-        <application plugin="python3" time="10" arguments="tests/echo.py server 0.0.0.0" />
-    </node>
-    <node id="python3client" quantity="1">
-        <application plugin="python3" time="20" arguments="tests/echo.py client python3server" />
     </node>
 
 </shadow>

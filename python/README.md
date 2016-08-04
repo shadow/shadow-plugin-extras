@@ -1,49 +1,63 @@
-"hello": a Shadow plug-in
+The Python Shadow Plug-in
 =========================
 
-This plug-in provides a quick example of how to interface with Shadow.
-The most important features of the code that enable this are:
- + completely non-blocking I/O and non-blocking system calls
- + polling I/O events using the `epoll` interface (see `$ man epoll`)
- + no process forking or thread creation
+Run any Python script with Shadow using the Python plug-in. The limiations
+of Shadow itself apply in it as well:
 
-copyright holders
------------------
+* Everything must be non-blocking I/O and non-blocking system calls
+* Using epoll for all otherwise-blocking I/O calls
+* No multiprocessing / forking but threading is allowed
 
-No copyright is claimed by the United States Government.
-
-licensing deviations
---------------------
-
-No deviations from LICENSE.
-
-last known working version
---------------------------
-
-This plug-in was last tested and known to work with 
-Shadow v1.9.0
-commit 2fb316ad84801434c4b5e0536740807774c732fd
-Date:   Tue Mar 11 18:20:36 2014 -0400
-
-usage
+Usage
 -----
 
-Please see the `example.xml`, which may be run in Shadow
+Please see the `example.xml`, which may be run in Shadow. For all executions
+in the context of the shadow plug-in (either the library to run it with
+Shadow or the standalone interpreter mentioned below), it requires its own
+preloaded library. You can either run
+´export LD_PRELOAD="$HOME/.shadow/lib/libshadow-python-interpose.so"` or
+execute Shadow with the `--preload` argument (the latter one only works
+for Shadow itself, not for the standlone binaries).
 
 ```bash
 shadow example.xml
 ```
 
-A binary version of the code is available for usage outside of Shadow.
-Run the program `hello` with no arguments to start the server:
+You can also run all parts of the simulation outside of Shadow using the
+`shadow-python` binary. Included with the plug-in is a reimplementation
+of the Shadow `echo` plug-in in Python. This script can be run either
+from Python directly using your standard interpreter or using the
+plug-in `shadow-python` mentioned above (which mostly behaves like a regular
+Python interpreter). Run the server like this:
 
 ```bash
-hello
+shadow-python tests/echo.py server 0.0.0.0
 ```
 
-Run the program `hello` with the IP address or hostname of the listening
-server to run client mode:
+The execute the client:
 
 ```bash
-hello localhost
+shadow-python tests/echo.py client localhost
 ```
+
+Substitute `shadow-python` with just `python` to run it with a regular
+interpreter. There is nothing special about the script other than them being
+written specifically to work with Shadow (meeting the requirements listed above
+such as using `epoll`).
+
+Python 3
+--------
+
+The plug-in currently does not support Python 3 due to conflicts of running
+both in parallel. Interpreters and plug-ins for both exist and can be compiled.
+It might be possible to just load the Python 3 plug-in and it could just work
+if Python 2 is not enabled at all. However this has not been tested.
+
+The plugin is called `libshadow-plugin-python3.so` and the interpreter is
+`shadow-python3`.
+
+Last Known Working Version
+--------------------------
+
+This plug-in was last tested and known to work with 
+Shadow v1.11.1-23-g490e4f1
