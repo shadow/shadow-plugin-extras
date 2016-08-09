@@ -38,7 +38,7 @@
     <plugin id="pcap_replay" path="~/.shadow/plugins/libshadow-plugin-pcap_replay.so" />
 
    <!--  USAGE: 'client'|'server' serverHostName serverPort IP_client_in_pcap Port_client IP_server_in_pcap Port_server timeout file.pcap -->
-    <kill time="1000" />
+    <kill time="1200" />
 
      <!-- our Tor network infrastructure -->
     <node id="4uthority" bandwidthdown="10240" bandwidthup="10240">
@@ -57,13 +57,13 @@
     </node>
 
     <node id="server" geocodehint="US" loglevel="debug">
-        <application plugin="pcap_replay" time="200" arguments="server server 80 192.168.1.120 53892 195.154.135.143 80 950 /home/tor/pcap_traces/test.pcap /home/tor/pcap_traces/test.pcap /home/tor/pcap_traces/test.pcap /home/tor/pcap_traces/test.pcap" />
+        <application plugin="pcap_replay" time="200" arguments="server server 80 192.168.1.120 53892 195.154.135.143 80 950 test.pcap test.pcap test.pcap" />
     </node>
     
     <node id="client" quantity="1" loglevel="debug" logpcap="true" pcapdir="test">
         <application plugin="tor" time="100" arguments="--Address ${NODEID} --Nickname ${NODEID} --DataDirectory shadow.data/hosts/${NODEID} --GeoIPFile ~/.shadow/share/geoip --defaults-torrc conf/tor.common.torrc -f conf/tor.client.torrc --BandwidthRate 1024000 --BandwidthBurst 1024000" />
         <application plugin="torctl" starttime="101" arguments="localhost 9051 STREAM,CIRC,CIRC_MINOR,ORCONN,BW,STREAM_BW,CIRC_BW,CONN_BW,BUILDTIMEOUT_SET,CLIENTS_SEEN,GUARD,CELL_STATS,TB_EMPTY,HS_DESC,HS_DESC_CONTENT"/>
-        <application plugin="pcap_replay" time="250" arguments="client-tor 9000 server 80 192.168.1.120 53892 195.154.135.143 80 950 /home/tor/pcap_traces/test.pcap /home/tor/pcap_traces/test.pcap /home/tor/pcap_traces/test.pcap /home/tor/pcap_traces/test1.pcap" />
+        <application plugin="pcap_replay" time="250" arguments="client-tor 9000 server 80 192.168.1.120 53892 195.154.135.143 80 950 test.pcap test.pcap test.pcap" />
     </node>
 
 </shadow>

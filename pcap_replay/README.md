@@ -8,9 +8,9 @@ Install
 
 - Place the pcap-replay folder in ~/shadow-plugin-tor/src/
 - Add the following line to ~/shadow-plugin-tor/src/CMakeLists.txt :
-
-> add_subdirectory(pcap_replay)
-
+```
+ add__subdirectory(pcap_replay)
+```
 - Then build and install the changes :
 
 ```bash
@@ -20,8 +20,9 @@ Install
 
 Usage : Shadow
 --------------
+A small example is given in the archive shadowtor-pcap-replay-example.
 
-Please see the `example.xml`, which may be run using Shadow
+See the 'shadow.example.config.xml`, which may be run using Shadow
 
 ```bash
 shadow example.xml
@@ -31,20 +32,20 @@ Let's have a closer look at the arguments given to both the client and the serve
 
 ```
 <node id="server" geocodehint="US">
-    <application plugin="pcap_replay" time="60" arguments="server server 80 192.168.1.2 52000 192.168.1.3 22 950 /home/tor/pcap_traces/ssh_capture1.pcap /home/tor/pcap_traces/ssh_1.pcap /home/tor/pcap_traces/ssh_2.pcap"/>
+    <application plugin="pcap_replay" time="60" arguments="server server 80 192.168.1.2 52000 192.168.1.3 22 950 trace1.pcap trace2.pcap"/>
 </node>
 
 <node id="client" geocodehint="US">
-    <application plugin="pcap_replay" time="120" arguments="client server 80 192.168.1.2 52000 192.168.1.3 22 950 /home/*/pcap_traces/ssh_1.pcap /home/*/pcap_traces/ssh_2.pcap"/>
+    <application plugin="pcap_replay" time="120" arguments="client server 80 192.168.1.2 52000 192.168.1.3 22 950 trace1.pcap trace2.pcap"/>
 </node>
 ```
 
-In this example, Shadow creates one client and one server. The server starts at 60 seconds and binds to the port 80. The client starts at 120 seconds connects to the hostname server on port 80. The client and the server will replay the traffic stored in the ssh_1.pcap and ssh_2.pcap files. The client will replay the TCP traffic with IP.source=192.168.1.2 & Port.source=52000 & IP.dest=192.168.1.3 & Port.dest=80 while respecting the sending timings of the original packets. On the other hand, the server will replay the TCP traffic flowing from the server to the client. Note that the TCP control messages (Handshake, ACK, Options, etc...) will not be replayed since the payload of these packets are null. 
+In this example, Shadow creates one client and one server. The server starts at 60 seconds and binds to the port 80. The client starts at 120 seconds connects to the hostname server on port 80. The client and the server will replay the traffic stored in the trace1.pcap and trace2.pcap files. The client will replay the TCP traffic with IP.source=192.168.1.2 & Port.source=52000 & IP.dest=192.168.1.3 & Port.dest=80 while respecting the sending timings of the original packets. On the other hand, the server will replay the TCP traffic flowing from the server to the client. Note that the TCP control messages (Handshake, ACK, Options, etc...) will not be replayed since the payload of these packets are empty. 
 
 Usage : Shadow-tor
 ------------------
 
-Please see the `example.tor.xml` which may be run using Shadow-tor
+Please see the `shadowtor.example.config` which may be run using Shadow-tor
 
 
 ```bash
@@ -65,5 +66,5 @@ Let's have a closer look at the arguments given to both the client-tor and the s
 </node>
 ```
 
-This example is slightly different from the first one. In this example, the client-tor connects to the Tor proxy that starts with the tor plug-in. The client plug-in connects to the SocksPort 9000 and negociate a remote connection to the server on port 80. When the negociation is over, the client and the serve starts sending packets. 
+This example is slightly different from the first one. In this example, the client-tor connects to the Tor proxy that starts with the tor plug-in. The client plug-in connects to the SocksPort 9000 and negociate a remote connection to the server on port 80. When the negociation is over, the client and the server starts sending packets. 
 

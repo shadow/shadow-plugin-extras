@@ -249,7 +249,20 @@ void _pcap_activateServer(Pcap_Replay* pcapReplay, gint sd, uint32_t events) {
 		assert(events & EPOLLIN);
 
 		/* accept new connection from a remote client */
-		int newClientSD = accept(sd, NULL, NULL);
+		struct sockaddr_in clientaddr;
+    	socklen_t clientaddr_size = sizeof(clientaddr);
+		int newClientSD = accept(sd,  (struct sockaddr *)&clientaddr, &clientaddr_size);
+
+			
+		int len=20;
+		char ip_add[len];
+
+		inet_ntop(AF_INET, &(clientaddr.sin_addr), ip_add, len);
+
+
+		pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__,
+						"Client connected on server with address : %s ", ip_add	);
+
 
 		/* now register this new socket so we know when its ready */
 		memset(&ev, 0, sizeof(struct epoll_event));
@@ -869,7 +882,7 @@ gboolean get_next_packet(Pcap_Replay* pcapReplay) {
 			// check if this packet srcIP,destIP,destPort correspond to the arguments
 			if(pcapReplay->client_IP_in_pcap.s_addr == ip->ip_src.s_addr) {
 				if(pcapReplay->server_IP_in_pcap.s_addr == ip->ip_dst.s_addr) {
-					if((ntohs(tcp->th_dport) == pcapReplay->server_port_in_pcap)) {
+					//if((ntohs(tcp->th_dport) == pcapReplay->server_port_in_pcap)) {
 						pcapReplay->nextPacket = g_new0(Custom_Packet_t, 1);
 						pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__, "Found at least one matching packet in next_packet");
 						exists = TRUE;
@@ -878,7 +891,7 @@ gboolean get_next_packet(Pcap_Replay* pcapReplay) {
 						pcapReplay->nextPacket->payload_size = size_payload;
 						pcapReplay->nextPacket->payload = payload;
 						break;
-					}
+					//}
 				}
 			}	
 		} 

@@ -127,6 +127,8 @@ gboolean pcap_replay_isDone(Pcap_Replay* h);
 void pcap_replay_free(Pcap_Replay* h); 
 void deinstanciate(Pcap_Replay* pcapReplay, gint sd);
 
+
+/* The following structures are dedicated to parse the pcap file easily */
 /* Ethernet header */
 #define SIZE_ETHERNET 14
 #define ETHER_ADDR_LEN  6
