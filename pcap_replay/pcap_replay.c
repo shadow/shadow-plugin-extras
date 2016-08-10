@@ -1008,7 +1008,7 @@ gboolean restart_server(Pcap_Replay* pcapReplay) {
 	pcapReplay->isFirstPacketReceived=FALSE;
 
 	/* UNCOMMENT IF YOU WANT THE CONNECTION TO BE CLOSED 
-	 * AND RESTARTED AFTER EACH PCAP FILE */
+	 * AND RESTARTED AFTER SENDING EACH PCAP FILE */
 
 	/*
 	pcapReplay->isRestarting = TRUE;
@@ -1031,7 +1031,7 @@ gboolean restart_client(Pcap_Replay* pcapReplay) {
 	timewait.tv_nsec=0;
 
 	/* UNCOMMENT IF YOU WANT THE CONNECTION TO BE CLOSED 
-	 * AND RESTARTED AFTER EACH PCAP FILE */
+	 * AND RESTARTED AFTER SENDING EACH PCAP FILE */
 
 	/*
 	// Finish the connection if not already done 
