@@ -9,7 +9,7 @@ Install
 - Place the pcap-replay folder in ~/shadow-plugin-tor/src/
 - Add the following line to ~/shadow-plugin-tor/src/CMakeLists.txt :
 ```
- add__subdirectory(pcap_replay)
+ add_subdirectory(pcap_replay)
 ```
 - Then build and install the changes :
 
@@ -67,4 +67,19 @@ Let's have a closer look at the arguments given to both the client-tor and the s
 ```
 
 This example is slightly different from the first one. In this example, the client-tor connects to the Tor proxy that starts with the tor plug-in. The client plug-in connects to the SocksPort 9000 and negociate a remote connection to the server on port 80. When the negociation is over, the client and the server starts sending packets. 
+
+
+Licensing deviations
+--------------------
+
+No deviations from LICENSE.
+
+
+Last known working version
+--------------------------
+
++ Shadow 'v1.11.1-25-g9609e85 2016-08-04 running GLib v2.46.2 and IGraph v0.7.1'
++ Shadow-tor 'commit b918ca70d8a4733d379a0c9b0571c304f786bb91 on Monday June 6 2016' 
+
+
 
