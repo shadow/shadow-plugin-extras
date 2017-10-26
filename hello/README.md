@@ -19,7 +19,9 @@ No deviations from LICENSE.
 last known working version
 --------------------------
 
-This plug-in was last tested and known to work with `Shadow v1.11.1-11-gf349fe5 2016-03-11`
+This plug-in was last tested and known to work with
+
+`Shadow v1.12.0-15-g9502fca 2017-10-23 (built 2017-10-26) running GLib v2.46.2 and IGraph v0.7.1`
 
 usage
 -----

@@ -1,5 +1,7 @@
 ## hello world plug-in
 
+add_cflags("-std=gnu99")
+
 ## create and install a shared library that can plug into shadow
 add_shadow_plugin(shadow-plugin-hello hello.c)
 target_link_libraries(shadow-plugin-hello)

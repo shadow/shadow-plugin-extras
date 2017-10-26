@@ -2,6 +2,7 @@
  * See LICENSE for licensing information
  */
 
+#include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

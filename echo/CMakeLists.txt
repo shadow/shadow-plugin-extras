@@ -1,5 +1,7 @@
 ## example echo server/client plug-in
 
+add_cflags("-std=gnu99")
+
 if("${GLIB_LIBRARIES}" STREQUAL "")
     find_package(GLIB REQUIRED)
 endif()

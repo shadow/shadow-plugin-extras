@@ -7,19 +7,17 @@ This repository holds additional plug-ins for Shadow, including a basic "hello w
 ```bash
 mkdir build
 cd build
-CC=`which clang` CXX=`which clang++` cmake .. -DCMAKE_INSTALL_PREFIX=`readlink -f ~`/.shadow
-make -jN
+cmake .. -DCMAKE_INSTALL_PREFIX=`readlink -f ~`/.shadow
+make
 make install
 ```
-
-Replace `N` with the number of cores you want to use for a parallel build.
 
 # cmake options
 
 The `cmake` command above takes multiple options, specified as
 
 ```bash
-CC=`which clang` CXX=`which clang++` cmake .. -DOPT=VAL
+cmake .. -DOPT=VAL
 ```
 
 + SHADOW_ROOT = "path/to/shadow/install/root" (default is "~/.shadow")  
@@ -29,7 +27,7 @@ CC=`which clang` CXX=`which clang++` cmake .. -DOPT=VAL
 For example:
 
 ```bash
-CC=`which clang` CXX=`which clang++` cmake .. -DSHADOW_ROOT=/home/rob/.shadow -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/rob/.shadow
+cmake .. -DSHADOW_ROOT=/home/rob/.shadow -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/rob/.shadow
 ```
 
 # troubleshooting
@@ -45,15 +43,15 @@ cd build
 using `VERBOSE=1` for more verbose output
 
 ```bash
-VERBOSE=1 CC=`which clang` CXX=`which clang++` cmake ..
+VERBOSE=1 cmake ..
 make
 ```
 
 # contributing
 
-Please feel free to submit pull requests to contribute new plug-ins to
-this repository. If contributing a plug-in to this repository, please
-add a README.md to the top level of your plug-in directory that includes:
+Please submit pull requests to contribute new plug-ins to this repository.
+When contributing a plug-in to this repository, please add a README.md to
+the top level of your plug-in directory that includes:
 
  + copyright holders
  + licensing deviations from the LICENSE file, or other restrictions

@@ -4,7 +4,7 @@ Quick description of the plugin...
 
 ## copyright holders
 
-Author name(s).
+Author name(s) and contact information.
 
 ## licensing deviations
 

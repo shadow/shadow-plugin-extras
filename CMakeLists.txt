@@ -70,23 +70,7 @@ else()
     message(FATAL_ERROR "CMAKE_MODULE_PATH path does not exist: '${CMAKE_MODULE_PATH}'")
 endif()
 include_directories(${CMAKE_MODULE_PATH})
-
-## we need to use LLVM to build the plug-ins
-set(LLVMHoistGlobalsPATH "${SHADOW_ROOT}/lib/LLVMHoistGlobals.so")
-if(EXISTS "${LLVMHoistGlobalsPATH}")
-    message(STATUS "LLVMHoistGlobalsPATH = ${LLVMHoistGlobalsPATH}")
-else()
-   message(FATAL_ERROR "LLVMHoistGlobalsPATH path does not exist: '${LLVMHoistGlobalsPATH}'")
-endif()
-include(LLVMTools)
-add_custom_target(LLVMHoistGlobals)
-
-## the plug-ins need to include shd-library.h and cmake files from shadow
-include_directories(${SHADOW_ROOT}/include)
-
-## shd-library.h requires glib
-find_package(GLIB REQUIRED)
-include_directories(${GLIB_INCLUDES})
+include(ShadowTools)
 
 ## plug-ins need to disable fortification to ensure syscalls are intercepted
 #add_definitions(-D_GNU_SOURCE)
@@ -104,5 +88,5 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/hello/)
 #add_subdirectory(${CMAKE_SOURCE_DIR}/ping/)
 #add_subdirectory(${CMAKE_SOURCE_DIR}/torcontrol/)
 #add_subdirectory(${CMAKE_SOURCE_DIR}/torrent/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/python/)
-add_subdirectory(${CMAKE_SOURCE_DIR}/python/python3)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/python/)
+#add_subdirectory(${CMAKE_SOURCE_DIR}/python/python3)
