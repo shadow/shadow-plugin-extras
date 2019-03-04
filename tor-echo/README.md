@@ -6,6 +6,7 @@ socket client/server where a client connects to a Tor hidden service
 on Shadow-Tor.
 
 Specifically, it demonstrates:
+
 	+ Establishing the SOCK5 proxy handshake
 	+ Connecting to the provided onion address
 	+ Sending data to the hidden service
