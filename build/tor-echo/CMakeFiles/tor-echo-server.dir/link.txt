@@ -1,1 +1,0 @@
-/usr/bin/cc  -g -fno-inline -fno-strict-aliasing -U_FORTIFY_SOURCE -std=gnu99  -rdynamic CMakeFiles/tor-echo-server.dir/tor-echo-server.c.o  -o tor-echo-server 

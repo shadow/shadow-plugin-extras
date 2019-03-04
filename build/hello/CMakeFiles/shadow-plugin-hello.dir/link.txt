@@ -1,1 +1,0 @@
-/usr/bin/cc -fPIC  -g -fno-inline -fno-strict-aliasing -U_FORTIFY_SOURCE -std=gnu99 -rdynamic -Wl,--no-as-needed -shared -Wl,-soname,libshadow-plugin-hello.so -o libshadow-plugin-hello.so CMakeFiles/shadow-plugin-hello.dir/hello.c.o -Wl,-rpath,:::::::::::::::::::::: 
