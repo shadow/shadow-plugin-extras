@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC  -g -fno-inline -fno-strict-aliasing -U_FORTIFY_SOURCE -std=gnu99 -rdynamic -Wl,--no-as-needed -shared -Wl,-soname,libshadow-plugin-tor-echo-server.so -o libshadow-plugin-tor-echo-server.so CMakeFiles/shadow-plugin-tor-echo-server.dir/tor-echo-server.c.o -Wl,-rpath,:::::::::::::::::::::: 

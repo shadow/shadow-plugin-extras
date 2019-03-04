@@ -1,0 +1,8 @@
+/home/user/.shadow/bin/echo
+/home/user/.shadow/plugins/libshadow-plugin-echo.so
+/home/user/.shadow/plugins/libshadow-plugin-hello.so
+/home/user/.shadow/bin/hello
+/home/user/.shadow/plugins/libshadow-plugin-tor-echo-client.so
+/home/user/.shadow/plugins/libshadow-plugin-tor-echo-server.so
+/home/user/.shadow/bin/tor-echo-client
+/home/user/.shadow/bin/tor-echo-server
