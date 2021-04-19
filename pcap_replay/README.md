@@ -42,6 +42,18 @@ Let's have a closer look at the arguments given to both the client and the serve
 
 In this example, Shadow creates one client and one server. The server starts at 60 seconds and binds to the port 80. The client starts at 120 seconds connects to the hostname server on port 80. The client and the server will replay the traffic stored in the trace1.pcap and trace2.pcap files. The client will replay the TCP traffic with IP.source=192.168.1.2 & Port.source=52000 & IP.dest=192.168.1.3 & Port.dest=80 while respecting the sending timings of the original packets. On the other hand, the server will replay the TCP traffic flowing from the server to the client. Note that the TCP control messages (Handshake, ACK, Options, etc...) will not be replayed since the payload of these packets are empty. 
 
+Usage : Executable
+------------------
+To run the binary outside shadow, ensure that a pcap file and executable exists in the directory and run the following commands in separate terminal windows:
+
+```bash
+./shadow-plugin-pcap_replay-exe server localhost 1337 <pcap_client_ip> <pcap_client_port> <pcap_server_ip> <pcap_server_port> 950 trace1.pcap
+```
+```bash
+./shadow-plugin-pcap_replay-exe client localhost 1337 <pcap_client_ip> <pcap_client_port> <pcap_server_ip> <pcap_server_port> 950 trace1.pcap
+```
+
+
 Usage : Shadow-tor
 ------------------
 

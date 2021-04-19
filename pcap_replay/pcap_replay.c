@@ -94,6 +94,8 @@ void _pcap_activateClient(Pcap_Replay* pcapReplay, gint sd, uint32_t events) {
 		} else if(numBytes==0) {
 			/* The connection have been closed by the distant peer
 			 * The client need to close and restart after a given time */
+			pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__,
+						"Server closed connection? Restarting..");
 			if(restart_client(pcapReplay)) {
 				pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__, 
 							"Successfully restarted the server !");
@@ -148,9 +150,11 @@ void _pcap_activateClient(Pcap_Replay* pcapReplay, gint sd, uint32_t events) {
 		} else if(numBytes==0) {
 			/* The connection have been closed by the distant peer.
 			 * The client need to close the connection and restart (or quit because of timeout */
+			pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__,
+						"Server closed connection? Restarting..");
 			if(restart_client(pcapReplay)) {
 				pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__, 
-							"Successfully restarted the server !");
+							"Successfully restarted the client !");
 				return;
 			} else{
 				deinstanciate(pcapReplay,sd);
@@ -172,6 +176,7 @@ void _pcap_activateClient(Pcap_Replay* pcapReplay, gint sd, uint32_t events) {
 	GDateTime* dt = g_date_time_new_now_local();
 	if(g_date_time_to_unix(dt) >= pcapReplay->timeout) {
 		/* tell epoll we no longer want to watch this socket */
+		pcapReplay->slogf(G_LOG_LEVEL_INFO, __FUNCTION__,  "Timeout reached!");
 		deinstanciate(pcapReplay,sd);
 	}
 }
@@ -301,6 +306,8 @@ void _pcap_activateServer(Pcap_Replay* pcapReplay, gint sd, uint32_t events) {
 			} else if(numBytes == 0) {
 				/* Client closed the remote connection
 				 * Restart the server & wait for a new connection */
+				pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__,
+						"Client closed connection? Restarting..");
 				if(restart_server(pcapReplay)) {
 					pcapReplay->slogf(G_LOG_LEVEL_MESSAGE, __FUNCTION__, 
 								"Successfully restarted the server !");
@@ -374,6 +381,7 @@ void _pcap_activateServer(Pcap_Replay* pcapReplay, gint sd, uint32_t events) {
 	GDateTime* dt = g_date_time_new_now_local();
 	if(g_date_time_to_unix(dt) >= pcapReplay->timeout) {
 		/* tell epoll we want to write the response now */
+		pcapReplay->slogf(G_LOG_LEVEL_INFO, __FUNCTION__,  "Timeout reached!");
 		deinstanciate(pcapReplay,sd);
 	}
 }
@@ -414,9 +422,13 @@ gboolean pcap_StartClient(Pcap_Replay* pcapReplay) {
 	} else {
 		struct addrinfo* info;
 		int ret = getaddrinfo(pcapReplay->serverHostName->str, NULL, NULL, &info);
-		if(ret >= 0) {
-			pcapReplay->serverIP = ((struct sockaddr_in*)(info->ai_addr))->sin_addr.s_addr;
+		if(ret < 0) {
+			pcapReplay->slogf(G_LOG_LEVEL_ERROR, __FUNCTION__,
+					"Unable to getaddrinfo() on hostname \"%s\"", pcapReplay->serverHostName->str);
+			return FALSE;
 		}
+
+		pcapReplay->serverIP = ((struct sockaddr_in*)(info->ai_addr))->sin_addr.s_addr;
 		freeaddrinfo(info);
 	}
 
@@ -640,7 +652,8 @@ Pcap_Replay* pcap_replay_new(gint argc, gchar* argv[], PcapReplayLogFunc slogf) 
 	pcapReplay->server_port_in_pcap = (gushort) atoi(argv[arg_idx++]);
 
 	// Get the timeout of the experiment
-	pcapReplay->timeout = atoi(argv[arg_idx++]);
+	GDateTime* dt = g_date_time_new_now_local();
+	pcapReplay->timeout = atoi(argv[arg_idx++]) + g_date_time_to_unix(dt);
 
 	// Get pcap paths and then open the file using pcap_open()
 	pcapReplay->nmb_pcap_file = argc-arg_idx;
