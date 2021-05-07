@@ -874,21 +874,33 @@ gboolean get_next_packet(Pcap_Replay* pcapReplay) {
 	const struct sniff_ethernet *ethernet; /* The ethernet header */
 	const struct sniff_ip *ip; /* The IP header */
 	const struct sniff_tcp *tcp; /* The TCP header */
-	u_int size_ip;
-	u_int size_tcp;
-
-
+	u_int size_ip_header;
+	u_int size_tcp_header;
+	u_int size_payload;
+	char *payload;
 
 	while((size = pcap_next_ex(pcapReplay->pcap, &header, &pkt_data)) >= 0) {
 		// There exists a next packet in the pcap file
 		// Retrieve header information
 		ethernet = (struct sniff_ethernet*)(pkt_data);
+
+		// ensure we are dealing with an ipv4 packet
+		if (ethernet->ether_type != 8) {
+			continue;
+		}
+
 		ip = (struct sniff_ip*)(pkt_data + SIZE_ETHERNET);
-		size_ip = IP_HL(ip)*4;
-		tcp = (struct sniff_tcp*)(pkt_data + SIZE_ETHERNET + size_ip);
-		size_tcp = TH_OFF(tcp)*4;
-		char* payload = (char *)(pkt_data + SIZE_ETHERNET + size_ip + size_tcp);
-		int size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
+		size_ip_header = IP_HL(ip)*4;
+
+		// ensure that we are dealing with tcp
+		if (ip->ip_p != '\x06') {
+			continue;
+		}
+
+		tcp = (struct sniff_tcp*)(pkt_data + SIZE_ETHERNET + size_ip_header);
+		size_tcp_header = TH_OFF(tcp)*4;
+		payload = (char *)(pkt_data + SIZE_ETHERNET + size_ip_header + size_tcp_header);
+		size_payload = ntohs(ip->ip_len) - (size_ip_header + size_tcp_header);
 
 		// Client scenario
 		if(pcapReplay->isClient) {
@@ -1231,8 +1243,7 @@ gboolean initiate_conn_to_proxy(Pcap_Replay* pcapReplay) {
 ssize_t send_packet(Custom_Packet_t* cp, gint sd) {
 	// Send the payload of the custom packet through the socket sd
 	char message[cp->payload_size];
-	memset(message, 0, (size_t)cp->payload_size);
-	snprintf(message,(size_t)cp->payload_size, "%s",(const char*) cp->payload);
+	memcpy(message, (const char*) cp->payload, (size_t)cp->payload_size);
 	return send(sd, message, (size_t)cp->payload_size, 0);
 }
 
