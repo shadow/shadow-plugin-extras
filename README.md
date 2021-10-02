@@ -1,3 +1,13 @@
+# :bangbang: ARCHIVAL NOTICE - 2021-10-02 :bangbang:
+
+In Shadow v2.x.x, we have transitioned to a new architecture that can run binary executables directly rather than building them as plugins that are loaded into Shadow. This means you can use various tools (e.g., cURL) directly and no longer need to use the custom, Shadow-specific build processes from this repository.
+
+We've archived this repository for posterity and for those wanting to use Shadow v1.15.0 or earlier, but **no further development updates will be posted here**.
+
+**Use at your own risk**; if it breaks, you get to keep both pieces.
+
+-----
+
 # shadow-plugins-extra
 
 This repository holds additional plug-ins for Shadow, including a basic "hello world" example useful for developing new plug-ins.
